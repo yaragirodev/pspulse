@@ -116,6 +116,51 @@ cd PSPRuntime && make clean && make && make dist
 
 Относительные пути (`build/pkg`) резолвятся от корня проекта, а не от CWD.
 
+## Сборка под Windows
+
+### Готовые бинарники (GitHub Actions)
+
+`.github/workflows/windows.yml` собирает редактор двумя тулчейнами на нативном
+`windows-latest` и публикует артефакты:
+
+| Job | Тулчейн | Артефакт | Размер |
+|-----|---------|----------|--------|
+| `build-windows` | MSVC (VS2022/VS2026, x64) | `PSPEditor-windows-x64` | ~2.2 МБ |
+| `build-mingw` | MinGW-w64 | `PSPEditor-windows-mingw` | ~5.9 МБ |
+
+Оба бинарника самодостаточны: CRT слинкован статически
+(`CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded` для MSVC,
+`-static -static-libgcc -static-libstdc++` для MinGW), поэтому зависимости —
+только `KERNEL32/USER32/GDI32/SHELL32` и не нужен ни VC++ Redistributable,
+ни `libstdc++-6.dll`. Генератор VS определяется через `vswhere`
+(17 → 2022, 18 → 2026), потому что `windows-latest` переехал на VS 2026.
+
+### Сборка вручную
+
+```powershell
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release -j
+# bin/Editor/PSPEditor.exe
+```
+
+### Headless-сборка игры (CI/скрипты)
+
+```bash
+./bin/Editor/PSPEditor --project projects/MyPSPGame --build
+# projects/MyPSPGame/build/pkg/EBOOT.PBP
+```
+
+Редактор сам находит `PSPRuntime/` рядом с бинарником, при отсутствии
+`libpsplua.a` компилирует Lua 5.4 из `third_party/lua` — готовый архив для
+чистого клона не нужен.
+
+### Ограничение: PSPSDK под Windows
+
+Prebuilt-тулчейн pspdev выпускается только под Linux (`pspdev-debian-latest.tar.gz`).
+Под Windows он запускается через **WSL2** (проще всего) или MSYS2. Редактор
+это учитывает: путь к `psp-gcc` можно указать вручную, а кнопка «Install
+PSPSDK...» под Windows предложит WSL2.
+
 ## Устранение неполадок
 
 * **PSPSDK не найден** — редактор всё равно собирается; в Build Settings можно
@@ -137,6 +182,9 @@ cmake --build build -j && cd build && ctest --output-on-failure
   Lua API» (некорректный индекс стека в C-функции → `abort()`).
 * `gltf_loader` — загрузка `.gltf`/`.glb`, встраивание трансформа узла,
   bounds, аккуратная ошибка на отсутствующем файле.
+* `png_decoder` — собственный inflate (RFC 1950/1951) без zlib: декодирование
+  PNG и пересжатие ICON0 до 144x80. Без него Windows-сборка требует системный
+  zlib, а на PSP уезжали бы чёрные иконки.
 
 ## Проверено
 
@@ -152,3 +200,9 @@ cmake --build build -j && cd build && ctest --output-on-failure
   процесс установки: `screenshots/pspsdk_install_progress.png`.
 * Сборка EBOOT через **только что установленный** тулчейн (без `$PSPDEV`)
   проверена в PPSSPP — сцена с моделями рендерится.
+* **Чистый клон:** EBOOT, собранный без готового `libpsplua.a`, загружается в
+  PPSSPP — `FPS 62 OBJ 10 LUA 1` (`screenshots/psp_clean_checkout_build.png`).
+  CI-EBOOT при этом побайтно совпадает с локальным (`md5 717d457c…`).
+* **GitHub Actions:** все 4 job'а зелёные (Windows MSVC, Windows MinGW,
+  Linux, PSP runtime); артефакты `PSPEditor.exe` запускаются без
+  Redistributable.
