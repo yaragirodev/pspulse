@@ -1,0 +1,45 @@
+# ---- Build output ----------------------------------------------------------
+/bin/
+/build/
+/.deps/
+/bout/
+DATA.PSP
+DATA.PSAR
+PARAM.SFO
+EBOOT.PBP
+*.elf
+*.o
+*.a
+*.exe
+*.dll
+
+# ---- Editor / project artefacts -------------------------------------------
+projects/*/build/
+projects/*/Shared/
+projects/*/third_party/
+PSPRuntime/Source/generated_assets.c.tmp
+pspeditor_layout.ini
+imgui.ini
+
+# ---- Toolchain cache -------------------------------------------------------
+bin/Editor/pspsdk/
+pspsdk/
+
+# ---- OS / editors ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# ---- Local environment noise ----------------------------------------------
+/.config/
+/.cache/
+/.local/
+.sudo_as_admin_successful
+
+# XMB artwork left over from manual pack-pbp runs
+/ICON0.PNG
+/PIC0.PNG
+/PIC1.PNG
+/SND0.AT3

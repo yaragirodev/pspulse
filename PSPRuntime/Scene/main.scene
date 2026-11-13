@@ -1,0 +1,920 @@
+{
+  "format": "PSPEngine.Scene",
+  "formatVersion": 1,
+  "engine": "1.0.0",
+  "name": "Main Scene",
+  "version": 1,
+  "ambient": [
+    0.24,
+    0.26,
+    0.32
+  ],
+  "gravity": [
+    0,
+    -9.81,
+    0
+  ],
+  "nextId": 30,
+  "objects": [
+    {
+      "id": 1,
+      "name": "Ground",
+      "parent": -1,
+      "primitive": "Plane",
+      "visible": true,
+      "color": [
+        0.4,
+        0.43,
+        0.48,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          22,
+          1,
+          22
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": true,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": true,
+        "restitution": 0.2,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": true,
+        "shape": "Box",
+        "size": [
+          22.0,
+          0.2,
+          22.0
+        ],
+        "offset": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 2,
+      "name": "Cube 1",
+      "parent": -1,
+      "primitive": "Cube",
+      "visible": true,
+      "color": [
+        0.9,
+        0.45,
+        0.25,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          -2.5,
+          4.5,
+          -1.0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": true,
+        "mass": 2.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.35,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": true,
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 3,
+      "name": "Cube 2",
+      "parent": -1,
+      "primitive": "Cube",
+      "visible": true,
+      "color": [
+        0.95,
+        0.72,
+        0.25,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          -1.1,
+          5.7,
+          -0.4
+        ],
+        "rotation": [
+          15,
+          30,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": true,
+        "mass": 2.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.35,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": true,
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 4,
+      "name": "Cube 3",
+      "parent": -1,
+      "primitive": "Cube",
+      "visible": true,
+      "color": [
+        0.55,
+        0.85,
+        0.45,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          0.3,
+          6.9,
+          0.2
+        ],
+        "rotation": [
+          30,
+          60,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": true,
+        "mass": 2.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.35,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": true,
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 5,
+      "name": "Ball A",
+      "parent": -1,
+      "primitive": "Sphere",
+      "visible": true,
+      "color": [
+        0.35,
+        0.62,
+        0.95,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          1.8,
+          5.5,
+          0.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "script": "scripts/spin.lua",
+      "physics": {
+        "enabled": true,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.62,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": true,
+        "shape": "Sphere",
+        "size": [
+          1.1,
+          1.1,
+          1.1
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 6,
+      "name": "Ball B",
+      "parent": -1,
+      "primitive": "Sphere",
+      "visible": true,
+      "color": [
+        0.75,
+        0.4,
+        0.9,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          3.2,
+          7.0,
+          -1.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": true,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.55,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": true,
+        "shape": "Sphere",
+        "size": [
+          0.8,
+          0.8,
+          0.8
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 10,
+      "name": "Totem",
+      "parent": -1,
+      "primitive": "Empty",
+      "visible": true,
+      "color": [
+        0.82,
+        0.84,
+        0.9,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          4.2,
+          0,
+          -3.0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": false,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.2,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": false,
+        "shape": "Box",
+        "size": [
+          1,
+          1,
+          1
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 11,
+      "name": "Column",
+      "parent": 10,
+      "primitive": "Cylinder",
+      "visible": true,
+      "color": [
+        0.55,
+        0.8,
+        0.62,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          4.2,
+          1.2,
+          -3.0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.4,
+          2.4,
+          1.4
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": false,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.2,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": false,
+        "shape": "Box",
+        "size": [
+          1,
+          1,
+          1
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 12,
+      "name": "Cone",
+      "parent": 10,
+      "primitive": "Cone",
+      "visible": true,
+      "color": [
+        0.95,
+        0.86,
+        0.35,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          4.2,
+          3.2,
+          -3.0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.4,
+          1.6
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": false,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.2,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": false,
+        "shape": "Box",
+        "size": [
+          1,
+          1,
+          1
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 13,
+      "name": "Platform",
+      "parent": -1,
+      "primitive": "Cube",
+      "visible": true,
+      "color": [
+        0.5,
+        0.56,
+        0.66,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          -4.5,
+          0.6,
+          2.5
+        ],
+        "rotation": [
+          0,
+          20,
+          0
+        ],
+        "scale": [
+          3.2,
+          1.2,
+          3.2
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": true,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": true,
+        "restitution": 0.2,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": true,
+        "shape": "Box",
+        "size": [
+          3.2,
+          1.2,
+          3.2
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 20,
+      "name": "Sun",
+      "parent": -1,
+      "primitive": "Empty",
+      "visible": true,
+      "color": [
+        1.0,
+        0.98,
+        0.9,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          5,
+          9,
+          6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": false,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.2,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": false,
+        "shape": "Box",
+        "size": [
+          1,
+          1,
+          1
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": true,
+        "color": [
+          1.0,
+          0.96,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 20.0
+      },
+      "camera": {
+        "enabled": false,
+        "fov": 60.0,
+        "near": 0.1,
+        "far": 100.0,
+        "active": false
+      }
+    },
+    {
+      "id": 21,
+      "name": "Main Camera",
+      "parent": -1,
+      "primitive": "Empty",
+      "visible": true,
+      "color": [
+        0.82,
+        0.84,
+        0.9,
+        1.0
+      ],
+      "transform": {
+        "position": [
+          0,
+          4.5,
+          11.0
+        ],
+        "rotation": [
+          -12,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "script": "",
+      "physics": {
+        "enabled": false,
+        "mass": 1.0,
+        "useGravity": true,
+        "isStatic": false,
+        "restitution": 0.2,
+        "friction": 0.6,
+        "velocity": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collision": {
+        "enabled": false,
+        "shape": "Box",
+        "size": [
+          1,
+          1,
+          1
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "light": {
+        "enabled": false,
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "camera": {
+        "enabled": true,
+        "fov": 60.0,
+        "near": 0.5,
+        "far": 200.0,
+        "active": true
+      }
+    }
+  ]
+}

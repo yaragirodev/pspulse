@@ -1,0 +1,772 @@
+{
+  "ambient": [
+    0.2199999988079071,
+    0.23999999463558197,
+    0.30000001192092896
+  ],
+  "engine": "1.0.0",
+  "format": "PSPEngine.Scene",
+  "formatVersion": 1,
+  "gravity": [
+    0.0,
+    -9.8100004196167,
+    0.0
+  ],
+  "name": "Main Scene",
+  "nextId": 11,
+  "objects": [
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": true,
+        "offset": [
+          0.0,
+          -0.05000000074505806,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          20.0,
+          0.10000000149011612,
+          20.0
+        ]
+      },
+      "color": [
+        0.41999998688697815,
+        0.44999998807907104,
+        0.5,
+        1.0
+      ],
+      "id": 1,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "Ground",
+      "parent": -1,
+      "physics": {
+        "enabled": true,
+        "friction": 0.6000000238418579,
+        "isStatic": true,
+        "mass": 1.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Plane",
+      "script": "",
+      "transform": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          20.0,
+          1.0,
+          20.0
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": true,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.8799999952316284,
+        0.5199999809265137,
+        0.30000001192092896,
+        1.0
+      ],
+      "id": 2,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "Cube",
+      "parent": -1,
+      "physics": {
+        "enabled": true,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 2.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Cube",
+      "script": "",
+      "transform": {
+        "position": [
+          -1.600000023841858,
+          3.0,
+          0.0
+        ],
+        "rotation": [
+          15.0,
+          30.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          0.9999999403953552,
+          0.9999999403953552
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": true,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Sphere",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.3499999940395355,
+        0.6200000047683716,
+        0.949999988079071,
+        1.0
+      ],
+      "id": 3,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "Sphere",
+      "parent": -1,
+      "physics": {
+        "enabled": true,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 1.0,
+        "restitution": 0.550000011920929,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Sphere",
+      "script": "scripts/spin.lua",
+      "transform": {
+        "position": [
+          1.399999976158142,
+          4.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": false,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.8199999928474426,
+        0.8399999737739563,
+        0.8999999761581421,
+        1.0
+      ],
+      "id": 4,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "Totem",
+      "parent": -1,
+      "physics": {
+        "enabled": false,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 1.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Empty",
+      "script": "",
+      "transform": {
+        "position": [
+          3.5999999046325684,
+          0.0,
+          -2.200000047683716
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": false,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.550000011920929,
+        0.800000011920929,
+        0.6200000047683716,
+        1.0
+      ],
+      "id": 5,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "Column",
+      "parent": 4,
+      "physics": {
+        "enabled": false,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 1.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Cylinder",
+      "script": "",
+      "transform": {
+        "position": [
+          3.5999999046325684,
+          1.0,
+          -2.200000047683716
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.2000000476837158,
+          2.0,
+          1.2000000476837158
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": false,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.949999988079071,
+        0.8600000143051147,
+        0.3499999940395355,
+        1.0
+      ],
+      "id": 6,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "Cone",
+      "parent": 4,
+      "physics": {
+        "enabled": false,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 1.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Cone",
+      "script": "",
+      "transform": {
+        "position": [
+          3.5999999046325684,
+          2.5999999046325684,
+          -2.200000047683716
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.399999976158142,
+          1.2000000476837158,
+          1.399999976158142
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": false,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.8199999928474426,
+        0.8399999737739563,
+        0.8999999761581421,
+        1.0
+      ],
+      "id": 7,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8199999928474426
+        ],
+        "enabled": true,
+        "intensity": 1.0,
+        "range": 18.0
+      },
+      "name": "Sun",
+      "parent": -1,
+      "physics": {
+        "enabled": false,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 1.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Empty",
+      "script": "",
+      "transform": {
+        "position": [
+          4.0,
+          6.0,
+          5.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": true,
+        "enabled": true,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": false,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.8199999928474426,
+        0.8399999737739563,
+        0.8999999761581421,
+        1.0
+      ],
+      "id": 8,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "Main Camera",
+      "parent": -1,
+      "physics": {
+        "enabled": false,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 1.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Empty",
+      "script": "",
+      "transform": {
+        "position": [
+          0.0,
+          3.0,
+          9.0
+        ],
+        "rotation": [
+          -15.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "visible": true
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": true,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.95,
+        0.45,
+        0.3,
+        1.0
+      ],
+      "id": 9,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "GltfModel",
+      "parent": -1,
+      "physics": {
+        "enabled": true,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 2.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Empty",
+      "script": "",
+      "transform": {
+        "position": [
+          3.0,
+          1.0,
+          -2.0
+        ],
+        "rotation": [
+          -90.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "visible": true,
+      "mesh_path": "assets/models/triangle.gltf"
+    },
+    {
+      "camera": {
+        "active": false,
+        "enabled": false,
+        "far": 100.0,
+        "fov": 60.0,
+        "near": 0.10000000149011612
+      },
+      "collision": {
+        "enabled": true,
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "shape": "Box",
+        "size": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "color": [
+        0.35,
+        0.75,
+        0.95,
+        1.0
+      ],
+      "id": 10,
+      "light": {
+        "color": [
+          1.0,
+          0.949999988079071,
+          0.8500000238418579
+        ],
+        "enabled": false,
+        "intensity": 1.0,
+        "range": 14.0
+      },
+      "name": "GltfModelGLB",
+      "parent": -1,
+      "physics": {
+        "enabled": true,
+        "friction": 0.6000000238418579,
+        "isStatic": false,
+        "mass": 2.0,
+        "restitution": 0.20000000298023224,
+        "useGravity": true,
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "primitive": "Empty",
+      "script": "",
+      "transform": {
+        "position": [
+          -3.0,
+          1.0,
+          -2.0
+        ],
+        "rotation": [
+          -90.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "visible": true,
+      "mesh_path": "assets/models/triangle.glb"
+    }
+  ],
+  "version": 1
+}
