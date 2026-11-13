@@ -38,8 +38,7 @@ if(WIN32)
 else()
     find_package(Threads REQUIRED)
     find_package(OpenGL REQUIRED)
-    find_package(ZLIB REQUIRED)
-    set(PSPEDITOR_PLATFORM_LIBS OpenGL::GL Threads::Threads ${CMAKE_DL_LIBS} ZLIB::ZLIB)
+    set(PSPEDITOR_PLATFORM_LIBS OpenGL::GL Threads::Threads ${CMAKE_DL_LIBS})
 endif()
 
 # ---------------------------------------------------------------------------
@@ -47,7 +46,11 @@ endif()
 # ---------------------------------------------------------------------------
 if(PSPEDITOR_FETCH_DEPS)
     include(FetchContent)
-    set(FETCHCONTENT_BASE_DIR ${CMAKE_SOURCE_DIR}/.deps CACHE PATH "" FORCE)
+    # Keep dependencies out of the source tree, but let callers (CI, cross
+    # builds for another target OS) point FetchContent elsewhere.
+    if(NOT FETCHCONTENT_BASE_DIR)
+        set(FETCHCONTENT_BASE_DIR ${CMAKE_SOURCE_DIR}/.deps CACHE PATH "FetchContent cache")
+    endif()
 
     # Build GLFW against X11 only (no wayland-scanner requirement).
     set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
@@ -89,7 +92,9 @@ endif()
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/third_party/imgui)
 if(NOT EXISTS ${IMGUI_DIR}/imgui.cpp)
     include(FetchContent)
-    set(FETCHCONTENT_BASE_DIR ${CMAKE_SOURCE_DIR}/.deps CACHE PATH "" FORCE)
+    if(NOT FETCHCONTENT_BASE_DIR)
+        set(FETCHCONTENT_BASE_DIR ${CMAKE_SOURCE_DIR}/.deps CACHE PATH "FetchContent cache")
+    endif()
     FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
         GIT_TAG v1.92.9b-docking
@@ -166,13 +171,16 @@ set(EDITOR_SOURCES
     Shared/Mesh/GltfLoader.cpp
     Shared/Scripting/LuaVM.cpp)
 
-if(WIN32)
-    # Console subsystem: the editor logs startup diagnostics (OpenGL version,
-    # PSPSDK detection) and the build pipeline output; WIN32 would hide them.
-    add_executable(PSPEditor ${EDITOR_SOURCES})
-    set_target_properties(PSPEditor PROPERTIES OUTPUT_NAME "PSPEditor")
-else()
-    add_executable(PSPEditor ${EDITOR_SOURCES})
+# Console subsystem on both platforms: the editor logs startup diagnostics
+# (OpenGL version, PSPSDK detection) and the build pipeline output, which a
+# WIN32 (GUI subsystem) binary would swallow.
+add_executable(PSPEditor ${EDITOR_SOURCES})
+set_target_properties(PSPEditor PROPERTIES OUTPUT_NAME "PSPEditor")
+
+if(WIN32 AND MINGW)
+    # Static MinGW runtime: the .exe then runs without libstdc++-6.dll,
+    # libgcc_s_seh-1.dll and libwinpthread-1.dll sitting next to it.
+    target_link_options(PSPEditor PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
 
 target_include_directories(PSPEditor PRIVATE
@@ -253,8 +261,25 @@ if(PSPEDITOR_BUILD_TESTS)
     target_include_directories(GltfLoaderTests PRIVATE
         ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/third_party)
     target_link_libraries(GltfLoaderTests PRIVATE glm::glm nlohmann_json::nlohmann_json)
+    target_compile_definitions(GltfLoaderTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
     add_test(NAME gltf_loader
              COMMAND GltfLoaderTests ${CMAKE_SOURCE_DIR}/projects/MyPSPGame/assets/models)
+
+    # PNG decoder used for ICON0/PIC1 (carries its own inflate implementation).
+    add_executable(PngTests Tests/png_test.cpp
+        Editor/Source/BuildPipeline.cpp
+        Editor/Source/PspsdkInstaller.cpp
+        Editor/Source/ProjectIO.cpp
+        Shared/Scene/SceneData.cpp
+        Shared/Scene/SceneIO.cpp
+        Shared/Mesh/GltfLoader.cpp)
+    target_include_directories(PngTests PRIVATE
+        ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/Editor/Source
+        ${CMAKE_SOURCE_DIR}/Package ${CMAKE_SOURCE_DIR}/third_party)
+    target_link_libraries(PngTests PRIVATE glm::glm nlohmann_json::nlohmann_json)
+    target_compile_definitions(PngTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
+    add_test(NAME png_decoder
+             COMMAND PngTests ${CMAKE_SOURCE_DIR}/projects/MyPSPGame/assets/ICON0.PNG)
 endif()
 
 message(STATUS "PSPEditor: binary will be written to ${CMAKE_SOURCE_DIR}/bin/Editor")

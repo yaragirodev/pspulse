@@ -1,0 +1,58 @@
+name: Windows
+
+# Builds PSPEditor.exe on a native Windows runner (MSVC), runs the headless
+# tests and publishes the editor + PSP runtime template as artifacts.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure (MSVC, x64)
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -j 4
+
+      - name: Run headless tests
+        working-directory: build
+        run: ctest -C Release --output-on-failure
+
+      - name: Upload editor
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSPEditor-windows-x64
+          path: |
+            bin/Editor/PSPEditor.exe
+            README.md
+          if-no-files-found: error
+
+  # Cross-check that the MinGW toolchain also produces a runnable binary.
+  build-mingw:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure (MinGW)
+        run: cmake -S . -B build-mingw -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build-mingw -j 4
+
+      - name: Run headless tests
+        working-directory: build-mingw
+        run: ctest --output-on-failure
+
+      - name: Upload editor
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSPEditor-windows-mingw
+          path: bin/Editor/PSPEditor.exe
+          if-no-files-found: error

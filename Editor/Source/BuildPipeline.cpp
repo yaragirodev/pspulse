@@ -16,8 +16,6 @@
 #include <sstream>
 #include <vector>
 
-#include <zlib.h>
-
 #include <glm/glm.hpp>
 
 #include "Shared/Scene/SceneData.h"
@@ -31,8 +29,230 @@ namespace pspeditor {
 namespace {
 
 // --------------------------------------------------------------------------
+// Minimal zlib inflate (RFC 1950/1951), self-contained so the editor builds on
+// Windows without a system zlib. Adapted from Mark Adler's public-domain
+// "puff" reference decoder, reduced to what PNG needs.
+// --------------------------------------------------------------------------
+struct InflateState {
+    const unsigned char* in = nullptr;
+    size_t inSize = 0;
+    size_t inPos = 0;
+    uint32_t bitBuffer = 0;
+    int bitCount = 0;
+    unsigned char* out = nullptr;
+    size_t outSize = 0;
+    size_t outPos = 0;
+    bool overflow = false;
+};
+
+struct Huffman {
+    short count[16];
+    short symbol[288];
+};
+
+int InflateBits(InflateState& s, int need) {
+    long value = s.bitBuffer;
+    while (s.bitCount < need) {
+        if (s.inPos >= s.inSize) return -1;
+        value |= static_cast<long>(s.in[s.inPos++]) << s.bitCount;
+        s.bitCount += 8;
+    }
+    s.bitBuffer = static_cast<uint32_t>(value >> need);
+    s.bitCount -= need;
+    return static_cast<int>(value & ((1L << need) - 1));
+}
+
+int InflateDecode(InflateState& s, const Huffman& h) {
+    int code = 0, first = 0, index = 0;
+    for (int length = 1; length < 16; ++length) {
+        int bit = InflateBits(s, 1);
+        if (bit < 0) return -1;
+        code |= bit;
+        int count = h.count[length];
+        if (code - count < first) return h.symbol[index + (code - first)];
+        index += count;
+        first += count;
+        first <<= 1;
+        code <<= 1;
+    }
+    return -1;
+}
+
+bool InflateConstruct(Huffman& h, const short* lengths, int n) {
+    for (int len = 0; len < 16; ++len) h.count[len] = 0;
+    for (int symbol = 0; symbol < n; ++symbol) h.count[lengths[symbol]]++;
+    if (h.count[0] == n) return true;
+    int left = 1;
+    for (int len = 1; len < 16; ++len) {
+        left <<= 1;
+        left -= h.count[len];
+        if (left < 0) return false;
+    }
+    short offsets[16];
+    offsets[1] = 0;
+    for (int len = 1; len < 15; ++len) offsets[len + 1] = offsets[len] + h.count[len];
+    for (int symbol = 0; symbol < n; ++symbol) {
+        if (lengths[symbol] != 0) h.symbol[offsets[lengths[symbol]]++] = static_cast<short>(symbol);
+    }
+    return true;
+}
+
+int InflateCodes(InflateState& s, const Huffman& lencode, const Huffman& distcode) {
+    static const short kLengthBase[29] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,
+                                          35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258};
+    static const short kLengthExtra[29] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
+                                           3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0};
+    static const short kDistBase[30] = {1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129,
+                                        193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097,
+                                        6145, 8193, 12289, 16385, 24577};
+    static const short kDistExtra[30] = {0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6,
+                                         6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
+    for (;;) {
+        int symbol = InflateDecode(s, lencode);
+        if (symbol < 0) return -1;
+        if (symbol < 256) {
+            if (s.outPos >= s.outSize) { s.overflow = true; return -1; }
+            s.out[s.outPos++] = static_cast<unsigned char>(symbol);
+        } else if (symbol == 256) {
+            return 0;
+        } else {
+            symbol -= 257;
+            if (symbol >= 29) return -1;
+            int extra = InflateBits(s, kLengthExtra[symbol]);
+            if (extra < 0) return -1;
+            size_t length = static_cast<size_t>(kLengthBase[symbol]) + static_cast<size_t>(extra);
+            int distSymbol = InflateDecode(s, distcode);
+            if (distSymbol < 0 || distSymbol >= 30) return -1;
+            extra = InflateBits(s, kDistExtra[distSymbol]);
+            if (extra < 0) return -1;
+            size_t distance = static_cast<size_t>(kDistBase[distSymbol]) + static_cast<size_t>(extra);
+            if (s.outPos < distance) return -1;
+            for (size_t i = 0; i < length; ++i) {
+                if (s.outPos >= s.outSize) { s.overflow = true; return -1; }
+                s.out[s.outPos] = s.out[s.outPos - distance];
+                ++s.outPos;
+            }
+        }
+    }
+}
+
+// Inflates a zlib stream (2-byte header + deflate + adler32) into `out`.
+bool InflateZlib(const unsigned char* data, size_t size, unsigned char* out, size_t outCapacity,
+                 size_t& outSize, std::string& error) {
+    if (size < 6) { error = "zlib stream too short"; return false; }
+    InflateState s;
+    s.in = data;
+    s.inSize = size;
+    s.out = out;
+    s.outSize = outCapacity;
+
+    const int cmf = data[0];
+    const int flg = data[1];
+    if ((cmf * 256 + flg) % 31 != 0) { error = "bad zlib header"; return false; }
+    if ((cmf & 0x0F) != 8) { error = "unsupported zlib compression method"; return false; }
+    s.inPos = 2;
+
+    for (;;) {
+        const int last = InflateBits(s, 1);
+        const int type = InflateBits(s, 2);
+        if (last < 0 || type < 0) { error = "truncated deflate stream"; return false; }
+        if (type == 0) {
+            // stored block
+            s.bitBuffer = 0;
+            s.bitCount = 0;
+            if (s.inPos + 4 > s.inSize) { error = "truncated stored block"; return false; }
+            const unsigned length = s.in[s.inPos] | (static_cast<unsigned>(s.in[s.inPos + 1]) << 8);
+            s.inPos += 4;
+            if (s.inPos + length > s.inSize) { error = "truncated stored block"; return false; }
+            if (s.outPos + length > s.outSize) { error = "deflate output overflow"; return false; }
+            std::memcpy(s.out + s.outPos, s.in + s.inPos, length);
+            s.inPos += length;
+            s.outPos += length;
+        } else if (type == 1) {
+            static Huffman fixedLen;
+            static Huffman fixedDist;
+            static bool built = false;
+            if (!built) {
+                short lengths[288];
+                int symbol = 0;
+                for (; symbol < 144; ++symbol) lengths[symbol] = 8;
+                for (; symbol < 256; ++symbol) lengths[symbol] = 9;
+                for (; symbol < 280; ++symbol) lengths[symbol] = 7;
+                for (; symbol < 288; ++symbol) lengths[symbol] = 8;
+                InflateConstruct(fixedLen, lengths, 288);
+                for (symbol = 0; symbol < 30; ++symbol) lengths[symbol] = 5;
+                InflateConstruct(fixedDist, lengths, 30);
+                built = true;
+            }
+            if (InflateCodes(s, fixedLen, fixedDist) != 0) {
+                error = "inflate failed (fixed block)";
+                return false;
+            }
+        } else if (type == 2) {
+            static const short kOrder[19] = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+            // RFC 1951 3.2.7: HLIT/HDIST/HCLEN are stored biased by 257/1/4.
+            const int hlit = InflateBits(s, 5);
+            const int hdist = InflateBits(s, 5);
+            const int hclen = InflateBits(s, 4);
+            if (hlit < 0 || hdist < 0 || hclen < 0) { error = "truncated dynamic header"; return false; }
+            const int nlen = hlit + 257;
+            const int ndist = hdist + 1;
+            const int ncode = hclen + 4;
+            if (nlen > 286 || ndist > 30) { error = "bad dynamic block sizes"; return false; }
+            short lengths[320] = {0};
+            int index = 0;
+            for (; index < ncode; ++index) {
+                const int value = InflateBits(s, 3);
+                if (value < 0) { error = "truncated code lengths"; return false; }
+                lengths[kOrder[index]] = static_cast<short>(value);
+            }
+            Huffman lencode, distcode;
+            if (!InflateConstruct(lencode, lengths, 19)) { error = "bad code-length tree"; return false; }
+            index = 0;
+            while (index < nlen + ndist) {
+                int symbol = InflateDecode(s, lencode);
+                if (symbol < 0) { error = "bad code-length symbol"; return false; }
+                if (symbol < 16) {
+                    lengths[index++] = static_cast<short>(symbol);
+                } else {
+                    int length = 0;
+                    int repeat;
+                    if (symbol == 16) {
+                        if (index == 0) { error = "repeat with no previous length"; return false; }
+                        length = lengths[index - 1];
+                        repeat = 3 + InflateBits(s, 2);
+                    } else if (symbol == 17) {
+                        repeat = 3 + InflateBits(s, 3);
+                    } else {
+                        repeat = 11 + InflateBits(s, 7);
+                    }
+                    if (repeat < 0 || index + repeat > nlen + ndist) { error = "bad repeat"; return false; }
+                    while (repeat--) lengths[index++] = static_cast<short>(length);
+                }
+            }
+            if (!InflateConstruct(lencode, lengths, nlen) ||
+                !InflateConstruct(distcode, lengths + nlen, ndist)) {
+                error = "bad dynamic trees";
+                return false;
+            }
+            if (InflateCodes(s, lencode, distcode) != 0) {
+                error = "inflate failed (dynamic block)";
+                return false;
+            }
+        } else {
+            error = "invalid deflate block type";
+            return false;
+        }
+        if (last) break;
+    }
+
+    outSize = s.outPos;
+    return true;
+}
+
+// --------------------------------------------------------------------------
 // Minimal PNG decoder (8-bit RGB/RGBA, no interlace) - just enough to inspect
-// and downscale ICON0 / PIC1 artwork. Uses zlib's uncompress().
+// and downscale ICON0 / PIC1 artwork. Uses the bundled inflate above.
 // --------------------------------------------------------------------------
 struct DecodedImage {
     int width = 0;
@@ -89,10 +309,14 @@ bool DecodePng(const std::vector<unsigned char>& data, DecodedImage& out, std::s
     size_t rawSize = (stride + 1) * static_cast<size_t>(height);
 
     std::vector<unsigned char> raw(rawSize);
-    if (idat.empty() || uncompress(raw.data(), reinterpret_cast<unsigned long*>(&rawSize), idat.data(),
-                                   idat.size()) != 0) {
-        error = "zlib decompression failed";
+    size_t inflated = 0;
+    if (idat.empty() || !InflateZlib(idat.data(), idat.size(), raw.data(), rawSize, inflated, error)) {
+        if (error.empty()) error = "zlib decompression failed";
         return false;
+    }
+    if (inflated < rawSize) {
+        // Truncated image data: pad with zeros rather than failing the build.
+        std::memset(raw.data() + inflated, 0, rawSize - inflated);
     }
 
     std::vector<unsigned char> pixels(stride * static_cast<size_t>(height));
@@ -520,7 +744,7 @@ BuildResult BuildGame(const Project& project, const BuildOptions& options, std::
 
     std::string userSnd;
     if (resolveAsset(info.snd0, userSnd)) {
-        if (!fsx::CopyFile(userSnd, sndPath)) return fail("Cannot copy SND0: " + userSnd);
+        if (!fsx::CopyFileTo(userSnd, sndPath)) return fail("Cannot copy SND0: " + userSnd);
         AppendLog(result.log, "[INFO] SND0.AT3 copied from " + userSnd);
     } else {
         if (fsx::FileExists(sndPath)) {

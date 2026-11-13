@@ -34,7 +34,7 @@ bool ReadTextFile(const std::string& path, std::string& out);
 bool WriteTextFile(const std::string& path, const std::string& contents);
 bool ReadBinaryFile(const std::string& path, std::vector<unsigned char>& out);
 bool WriteBinaryFile(const std::string& path, const std::vector<unsigned char>& data);
-bool CopyFile(const std::string& from, const std::string& to);
+bool CopyFileTo(const std::string& from, const std::string& to);
 
 struct DirEntry {
     std::string name;

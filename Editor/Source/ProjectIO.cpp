@@ -123,7 +123,7 @@ bool WriteBinaryFile(const std::string& path, const std::vector<unsigned char>& 
     return file.good();
 }
 
-bool CopyFile(const std::string& from, const std::string& to) {
+bool CopyFileTo(const std::string& from, const std::string& to) {
     std::error_code ec;
     fs::path parent = fs::path(to).parent_path();
     if (!parent.empty()) fs::create_directories(parent, ec);
