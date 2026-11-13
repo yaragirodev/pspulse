@@ -49,6 +49,27 @@ endif
 include $(PSPSDK)/lib/build.mak
 
 # ---------------------------------------------------------------------------
+# Lua 5.4 for the PSP: the runtime links against a static libpsplua.a built
+# from the vendored sources. It used to be a leftover build artifact, which
+# broke every clean checkout (CI included), so it is generated here.
+# ---------------------------------------------------------------------------
+LUA_SRC   = ../third_party/lua/src/src
+LUA_OBJS  = $(patsubst $(LUA_SRC)/%.c,lib/%.o,$(wildcard $(LUA_SRC)/*.c))
+LUA_LIB   = lib/libpsplua.a
+
+$(LUA_LIB): $(LUA_OBJS)
+	$(AR) rcs $@ $^
+
+lib/%.o: $(LUA_SRC)/%.c | lib
+	$(CC) $(CFLAGS) $(INCDIR:%=-I%) -c $< -o $@
+
+lib:
+	mkdir -p lib
+
+# The PSP ELF must not be linked before the bundled Lua archive exists.
+$(TARGET).elf: $(LUA_LIB)
+
+# ---------------------------------------------------------------------------
 # The generated asset bundle normally comes from the editor's Build Settings ->
 # "Build EBOOT.PBP". For a standalone template build we ship a default one.
 # Object compilation is handled by PSPSDK's build.mak pattern rules, which use

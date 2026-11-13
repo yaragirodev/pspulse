@@ -231,9 +231,16 @@ add_custom_command(TARGET PSPEditor POST_BUILD
         ${CMAKE_SOURCE_DIR}/third_party/glm ${CMAKE_SOURCE_DIR}/bin/Editor/third_party/glm
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/third_party/nlohmann_json ${CMAKE_SOURCE_DIR}/bin/Editor/third_party/nlohmann_json
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/PSPRuntime/lib ${CMAKE_SOURCE_DIR}/bin/Editor/PSPRuntime/lib
     COMMENT "Staging PSP runtime sources next to the editor")
+
+# PSPRuntime/lib holds libpsplua.a and the Lua objects produced by
+# `make -C PSPRuntime`; it is not part of the repository, so stage it only when
+# the runtime has been built already (otherwise the editor builds Lua itself).
+add_custom_command(TARGET PSPEditor POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+        -DPSPRUNTIME_SRC=${CMAKE_SOURCE_DIR}/PSPRuntime/lib
+        -DDEST=${CMAKE_SOURCE_DIR}/bin/Editor/PSPRuntime/lib
+        -P ${CMAKE_SOURCE_DIR}/cmake/StageLuaLib.cmake)
 
 # ---------------------------------------------------------------------------
 # Headless regression tests (no OpenGL / window): Lua bridge, scene IO.

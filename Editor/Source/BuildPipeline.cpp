@@ -907,6 +907,52 @@ BuildResult BuildGame(const Project& project, const BuildOptions& options, std::
         }
     }
     std::string libs;
+    if (luaLib.empty()) {
+        // No prebuilt archive in the project tree: build it from the vendored
+        // Lua 5.4 sources so a clean checkout still gets scripting support.
+        const std::string luaSourceDir =
+            fsx::PathJoin(fsx::ParentDir(runtimeDir), "third_party/lua/src/src");
+        if (fsx::FileExists(fsx::PathJoin(luaSourceDir, "lapi.c"))) {
+            if (aborted()) return fail("Build cancelled.");
+            const std::string rebuilt = fsx::PathJoin(buildDir, "libpsplua.a");
+            AppendLog(result.log, "[INFO] libpsplua.a not found - building Lua 5.4 for PSP from " +
+                                      luaSourceDir);
+            std::string luaObjects;
+            bool luaOk = true;
+            for (const auto& entry : fsx::ListDirectory(luaSourceDir)) {
+                if (entry.isDirectory) continue;
+                const std::string name = fsx::FileName(entry.path);
+                if (name.size() < 3 || name.compare(name.size() - 2, 2, ".c") != 0) continue;
+                if (name.compare(0, 3, "lua.c") == 0 || name.compare(0, 4, "luac.c") == 0) continue;
+                const std::string object = fsx::PathJoin(buildDir, name + ".psp.o");
+                const std::string command =
+                    gcc + " " + cxxFlags + " -DLUA_32BITS -c " + PathQuote(entry.path) + " -o " +
+                    PathQuote(object);
+                std::string output;
+                int code = RunCommand(command, output);
+                if (code != 0) {
+                    AppendLog(result.log, output);
+                    AppendLog(result.log, "[WARN] Lua object failed: " + name);
+                    luaOk = false;
+                    break;
+                }
+                luaObjects += " " + PathQuote(object);
+            }
+            if (luaOk && !luaObjects.empty()) {
+#if defined(_WIN32)
+                const std::string arTool = PathQuote(fsx::PathJoin(sdkBin, "psp-ar.exe"));
+#else
+                const std::string arTool = PathQuote(fsx::PathJoin(sdkBin, "psp-ar"));
+#endif
+                std::string output;
+                if (RunCommand(arTool + " rcs " + PathQuote(rebuilt) + luaObjects, output) == 0 &&
+                    fsx::FileExists(rebuilt)) {
+                    luaLib = rebuilt;
+                    AppendLog(result.log, "[INFO] Built " + rebuilt);
+                }
+            }
+        }
+    }
     if (!luaLib.empty()) {
         libs = PathQuote(luaLib) + " -L" + PathQuote(fsx::ParentDir(luaLib));
         AppendLog(result.log, "[INFO] Linking Lua 5.4: " + luaLib);

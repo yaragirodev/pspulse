@@ -75,3 +75,27 @@ jobs:
           name: EBOOT-template
           path: bin/PSPRuntime/EBOOT.PBP
           if-no-files-found: error
+
+      # End-to-end check of the editor's own pipeline: `PSPEditor --build`
+      # packaging a real project into an EBOOT.PBP without a window, and
+      # without a prebuilt libpsplua.a (the editor compiles Lua itself).
+      - name: Build the editor
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
+            libxcursor-dev libxi-dev
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j 4
+
+      - name: Headless EBOOT build via the editor CLI
+        run: |
+          rm -rf PSPRuntime/lib projects/MyPSPGame/build
+          ./bin/Editor/PSPEditor --project projects/MyPSPGame --build
+          ls -l projects/MyPSPGame/build/pkg/EBOOT.PBP
+
+      - name: Upload project EBOOT
+        uses: actions/upload-artifact@v4
+        with:
+          name: EBOOT-MyPSPGame
+          path: projects/MyPSPGame/build/pkg/EBOOT.PBP
+          if-no-files-found: error
