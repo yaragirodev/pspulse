@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - dockable panels
+//  PSPulse Editor - dockable panels
 //    * Scene Outliner (hierarchy, DnD-aware)
 //    * Inspector (transform + every component with "Add Component")
 //    * Content Browser
@@ -24,9 +24,9 @@
 
 namespace pspeditor {
 
-using pspengine::CollisionShapeType;
-using pspengine::GameObject;
-using pspengine::PrimitiveType;
+using pspulse::CollisionShapeType;
+using pspulse::GameObject;
+using pspulse::PrimitiveType;
 
 namespace {
 
@@ -266,11 +266,11 @@ void Application::DrawInspectorPanel() {
 
         // Diagnostics: report the loader's verdict for the current model.
         if (!object->meshPath.empty()) {
-            pspengine::MeshData probe;
-            pspengine::GltfLoadStats stats;
+            pspulse::MeshData probe;
+            pspulse::GltfLoadStats stats;
             std::string error;
             const std::string fullPath = fsx::PathJoin(state_.project.rootPath, object->meshPath);
-            if (pspengine::LoadGltfMesh(fullPath, probe, stats, error)) {
+            if (pspulse::LoadGltfMesh(fullPath, probe, stats, error)) {
                 ImGui::TextColored(ImVec4(0.5f, 0.9f, 0.6f, 1.0f), "%d verts / %d tris / %d mesh(es)",
                                    static_cast<int>(stats.vertices), static_cast<int>(stats.triangles),
                                    stats.meshes);
@@ -616,7 +616,7 @@ void Application::DrawViewportPanel() {
                 glm::mat4 rotationMatrix = glm::mat4_cast(rotation);
                 if (operation == ImGuizmo::ROTATE) {
                     selected->transform.rotation =
-                        pspengine::EulerDegreesFromMatrix(rotationMatrix);
+                        pspulse::EulerDegreesFromMatrix(rotationMatrix);
                 }
                 state_.sceneDirty = true;
             }
@@ -673,7 +673,7 @@ void Application::DrawBuildSettingsPanel() {
         return;
     }
 
-    pspengine::PackageInfo& info = state_.project.package;
+    pspulse::PackageInfo& info = state_.project.package;
 
     ImGui::TextColored(ImVec4(0.55f, 0.85f, 1.0f, 1.0f), "XMB (PSP System Menu)");
     ImGui::Separator();

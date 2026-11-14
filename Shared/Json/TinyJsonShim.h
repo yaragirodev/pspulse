@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - small json facade used by the shared glTF loader on the PSP.
+//  PSPulse - small json facade used by the shared glTF loader on the PSP.
 //
 //  The editor links nlohmann/json; the handheld links this shim, which wraps the
 //  dependency-free JSON DOM that already lives in the runtime (SceneRuntime.cpp,

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - PSPSDK auto-installation (implementation)
+//  PSPulse Editor - PSPSDK auto-installation (implementation)
 // ---------------------------------------------------------------------------
 
 #include "PspsdkInstaller.h"

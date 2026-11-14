@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - procedural mesh generation (editor viewport + glTF-free assets)
+//  PSPulse - procedural mesh generation (editor viewport + glTF-free assets)
 // ---------------------------------------------------------------------------
 
 #include <cstdint>
@@ -9,7 +9,7 @@
 
 #include "../Scene/SceneData.h"
 
-namespace pspengine {
+namespace pspulse {
 
 struct MeshData {
     std::vector<float> positions; // xyz
@@ -26,4 +26,4 @@ MeshData GeneratePrimitive(PrimitiveType type, int segments = 32);
 // Simple flat grid lines for the viewport ground grid.
 void GenerateGrid(float halfExtent, float cellSize, std::vector<float>& outPositions);
 
-} // namespace pspengine
+} // namespace pspulse

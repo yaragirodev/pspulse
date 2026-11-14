@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - application shell implementation
+//  PSPulse Editor - application shell implementation
 // ---------------------------------------------------------------------------
 
 #include "Application.h"
@@ -47,7 +47,7 @@ bool Application::InitWindow(std::string& error) {
 #endif
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    window_ = glfwCreateWindow(1600, 920, "PSP Engine Editor", nullptr, nullptr);
+    window_ = glfwCreateWindow(1600, 920, "PSPulse Editor", nullptr, nullptr);
     if (!window_) {
         error = "Cannot create the GLFW window (OpenGL 3.3 core is required)";
         return false;
@@ -59,7 +59,7 @@ bool Application::InitWindow(std::string& error) {
         error = "Failed to load OpenGL 3.3 entry points with glad";
         return false;
     }
-    std::printf("[PSPEditor] OpenGL %s | %s\n", reinterpret_cast<const char*>(glGetString(GL_VERSION)),
+    std::printf("[PSPulse] OpenGL %s | %s\n", reinterpret_cast<const char*>(glGetString(GL_VERSION)),
                 reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
     return true;
 }
@@ -134,15 +134,15 @@ int Application::Run(const std::string& projectPath) {
     startupProjectPath_ = projectPath;
     std::string error;
     if (!InitWindow(error)) {
-        std::fprintf(stderr, "[PSPEditor] %s\n", error.c_str());
+        std::fprintf(stderr, "[PSPulse] %s\n", error.c_str());
         return 1;
     }
     if (!InitImGui(error)) {
-        std::fprintf(stderr, "[PSPEditor] %s\n", error.c_str());
+        std::fprintf(stderr, "[PSPulse] %s\n", error.c_str());
         return 1;
     }
     if (!state_.renderer.Init(error)) {
-        std::fprintf(stderr, "[PSPEditor] Renderer init failed: %s\n", error.c_str());
+        std::fprintf(stderr, "[PSPulse] Renderer init failed: %s\n", error.c_str());
         return 1;
     }
 
@@ -157,7 +157,7 @@ int Application::Run(const std::string& projectPath) {
             state_.statusMessage = "Project opened: " + state_.project.name;
             state_.statusMessageTime = 3.0f;
         } else {
-            std::fprintf(stderr, "[PSPEditor] %s\n", openError.c_str());
+            std::fprintf(stderr, "[PSPulse] %s\n", openError.c_str());
             showStartupDialog_ = true;
         }
     }
@@ -229,7 +229,7 @@ void Application::MainLoop() {
 // --------------------------------------------------------------------------
 void Application::BuildDefaultLayout() {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGuiID dockspaceId = ImGui::GetID("PSPEditorDockspace");
+    ImGuiID dockspaceId = ImGui::GetID("PSPulseDockspace");
     ImGui::DockBuilderRemoveNode(dockspaceId);
     ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
     ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->WorkSize);
@@ -255,7 +255,7 @@ void Application::DrawFrame() {
         BuildDefaultLayout();
         layoutInitialized_ = true;
     }
-    ImGui::DockSpaceOverViewport(ImGui::GetID("PSPEditorDockspace"), nullptr,
+    ImGui::DockSpaceOverViewport(ImGui::GetID("PSPulseDockspace"), nullptr,
                                  ImGuiDockNodeFlags_PassthruCentralNode);
     DrawMenuBar();
     DrawStartupDialog();
@@ -274,7 +274,7 @@ void Application::DrawFrame() {
     if (ImGui::BeginViewportSideBar("##StatusBar", nullptr, ImGuiDir_Down, ImGui::GetFrameHeight(),
                                     ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar)) {
         if (ImGui::BeginMenuBar()) {
-            ImGui::TextUnformatted("PSP Engine " PSPENGINE_VERSION_STR " | Editor");
+            ImGui::TextUnformatted("PSPulse " PSPULSE_VERSION_STR " | Editor");
             ImGui::Separator();
             if (state_.project.valid) {
                 ImGui::Text("Project: %s", state_.project.name.c_str());
@@ -371,12 +371,12 @@ void Application::DrawMenuBar() {
         ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("GameObject")) {
-        if (ImGui::MenuItem("Cube")) state_.AddPrimitive(pspengine::PrimitiveType::Cube);
-        if (ImGui::MenuItem("Sphere")) state_.AddPrimitive(pspengine::PrimitiveType::Sphere);
-        if (ImGui::MenuItem("Cone")) state_.AddPrimitive(pspengine::PrimitiveType::Cone);
-        if (ImGui::MenuItem("Cylinder")) state_.AddPrimitive(pspengine::PrimitiveType::Cylinder);
-        if (ImGui::MenuItem("Plane")) state_.AddPrimitive(pspengine::PrimitiveType::Plane);
-        if (ImGui::MenuItem("Empty")) state_.AddPrimitive(pspengine::PrimitiveType::Empty);
+        if (ImGui::MenuItem("Cube")) state_.AddPrimitive(pspulse::PrimitiveType::Cube);
+        if (ImGui::MenuItem("Sphere")) state_.AddPrimitive(pspulse::PrimitiveType::Sphere);
+        if (ImGui::MenuItem("Cone")) state_.AddPrimitive(pspulse::PrimitiveType::Cone);
+        if (ImGui::MenuItem("Cylinder")) state_.AddPrimitive(pspulse::PrimitiveType::Cylinder);
+        if (ImGui::MenuItem("Plane")) state_.AddPrimitive(pspulse::PrimitiveType::Plane);
+        if (ImGui::MenuItem("Empty")) state_.AddPrimitive(pspulse::PrimitiveType::Empty);
         ImGui::Separator();
         if (ImGui::MenuItem("Sun Light")) state_.AddLight();
         if (ImGui::MenuItem("Camera")) state_.AddCamera();
@@ -422,12 +422,12 @@ void Application::DrawMenuBar() {
 // --------------------------------------------------------------------------
 void Application::DrawStartupDialog() {
     if (showStartupDialog_) {
-        ImGui::OpenPopup("Welcome to PSP Engine");
+        ImGui::OpenPopup("Welcome to PSPulse");
         showStartupDialog_ = false;
     }
     ImGui::SetNextWindowSize(ImVec2(560, 300), ImGuiCond_Appearing);
-    if (ImGui::BeginPopupModal("Welcome to PSP Engine", nullptr, ImGuiWindowFlags_NoResize)) {
-        ImGui::TextWrapped("Welcome to the PSP Engine editor. Create a new project or open an "
+    if (ImGui::BeginPopupModal("Welcome to PSPulse", nullptr, ImGuiWindowFlags_NoResize)) {
+        ImGui::TextWrapped("Welcome to the PSPulse editor. Create a new project or open an "
                            "existing project folder.");
         ImGui::Separator();
         ImGui::InputText("Project name", newProjectName_, sizeof(newProjectName_));
@@ -496,7 +496,7 @@ void Application::DrawSceneCameraControl(float dt) {
     state_.camera.Update(dt);
 
     if (ImGui::IsKeyPressed(ImGuiKey_F, false)) {
-        pspengine::GameObject* object = state_.SelectedObject();
+        pspulse::GameObject* object = state_.SelectedObject();
         if (object) {
             state_.camera.FocusOn(glm::vec3(state_.scene.WorldMatrix(*object)[3]));
         }
@@ -505,19 +505,19 @@ void Application::DrawSceneCameraControl(float dt) {
     // Play-mode keyboard mapping (mirrors the PSP pad).
     if (state_.playing) {
         state_.playInput.Clear();
-        state_.playInput.held[static_cast<int>(pspengine::InputButton::Cross)] =
+        state_.playInput.held[static_cast<int>(pspulse::InputButton::Cross)] =
             ImGui::IsKeyDown(ImGuiKey_Space);
-        state_.playInput.held[static_cast<int>(pspengine::InputButton::Left)] =
+        state_.playInput.held[static_cast<int>(pspulse::InputButton::Left)] =
             ImGui::IsKeyDown(ImGuiKey_LeftArrow);
-        state_.playInput.held[static_cast<int>(pspengine::InputButton::Right)] =
+        state_.playInput.held[static_cast<int>(pspulse::InputButton::Right)] =
             ImGui::IsKeyDown(ImGuiKey_RightArrow);
-        state_.playInput.held[static_cast<int>(pspengine::InputButton::Up)] =
+        state_.playInput.held[static_cast<int>(pspulse::InputButton::Up)] =
             ImGui::IsKeyDown(ImGuiKey_UpArrow);
-        state_.playInput.held[static_cast<int>(pspengine::InputButton::Down)] =
+        state_.playInput.held[static_cast<int>(pspulse::InputButton::Down)] =
             ImGui::IsKeyDown(ImGuiKey_DownArrow);
-        state_.playInput.analogX = (state_.playInput.held[static_cast<int>(pspengine::InputButton::Right)] ? 1.0f : 0.0f) -
-                                   (state_.playInput.held[static_cast<int>(pspengine::InputButton::Left)] ? 1.0f : 0.0f);
-        state_.playInput.pressed[static_cast<int>(pspengine::InputButton::Cross)] =
+        state_.playInput.analogX = (state_.playInput.held[static_cast<int>(pspulse::InputButton::Right)] ? 1.0f : 0.0f) -
+                                   (state_.playInput.held[static_cast<int>(pspulse::InputButton::Left)] ? 1.0f : 0.0f);
+        state_.playInput.pressed[static_cast<int>(pspulse::InputButton::Cross)] =
             ImGui::IsKeyPressed(ImGuiKey_Space, false);
     }
 }

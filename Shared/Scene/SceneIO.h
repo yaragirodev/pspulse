@@ -1,14 +1,14 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - JSON scene & project serialisation
+//  PSPulse - JSON scene & project serialisation
 // ---------------------------------------------------------------------------
 
 #include <string>
 
 #include "SceneData.h"
 
-namespace pspengine {
+namespace pspulse {
 
 // Serialise the scene into pretty JSON text.
 std::string SceneToJson(const Scene& scene);
@@ -24,4 +24,4 @@ bool LoadSceneFromFile(const std::string& path, Scene& outScene, std::string& er
 // a ground plane, one cube, one sphere, a sun and a camera.
 Scene MakeDefaultScene();
 
-} // namespace pspengine
+} // namespace pspulse

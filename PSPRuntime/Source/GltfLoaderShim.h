@@ -12,7 +12,7 @@
 
 #include "SceneRuntime.h"
 
-namespace pspengine {
+namespace pspulse {
 struct MeshData;
 }
 

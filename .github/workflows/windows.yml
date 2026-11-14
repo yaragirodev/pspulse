@@ -47,9 +47,9 @@ jobs:
       - name: Upload editor
         uses: actions/upload-artifact@v4
         with:
-          name: PSPEditor-windows-x64
+          name: PSPulse-windows-msvc
           path: |
-            bin/Editor/PSPEditor.exe
+            bin/PSPulse/PSPulse.exe
             README.md
           if-no-files-found: error
 
@@ -72,6 +72,6 @@ jobs:
       - name: Upload editor
         uses: actions/upload-artifact@v4
         with:
-          name: PSPEditor-windows-mingw
-          path: bin/Editor/PSPEditor.exe
+          name: PSPulse-windows-mingw
+          path: bin/PSPulse/PSPulse.exe
           if-no-files-found: error

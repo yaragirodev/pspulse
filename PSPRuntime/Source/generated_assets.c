@@ -979,6 +979,6 @@ const unsigned int gPspScriptCount = 0;
 const PspAssetBundle gPspAssetBundle = {
     kSceneData, sizeof(kSceneData),
     kStartupScriptData, 0,
-    "PSP Engine Runtime",
+    "PSPulse Runtime",
     ""
 };

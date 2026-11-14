@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - OpenGL 3.3 scene renderer implementation
+//  PSPulse Editor - OpenGL 3.3 scene renderer implementation
 // ---------------------------------------------------------------------------
 
 #include "Renderer.h"
@@ -17,10 +17,10 @@
 
 namespace pspeditor {
 
-using pspengine::GameObject;
-using pspengine::PrimitiveType;
-using pspengine::Scene;
-using pspengine::CollisionShapeType;
+using pspulse::GameObject;
+using pspulse::PrimitiveType;
+using pspulse::Scene;
+using pspulse::CollisionShapeType;
 
 // --------------------------------------------------------------------------
 // Helpers
@@ -129,7 +129,7 @@ void ViewportFramebuffer::Destroy() {
 // MeshGPU
 // --------------------------------------------------------------------------
 
-bool MeshGPU::Upload(const pspengine::MeshData& data) {
+bool MeshGPU::Upload(const pspulse::MeshData& data) {
     Destroy();
     if (data.positions.empty() || data.indices.empty()) return false;
     indexCount_ = static_cast<unsigned int>(data.indices.size());
@@ -446,7 +446,7 @@ bool SceneRenderer::Init(std::string& error) {
     // Coloured grid: built once into a vertex buffer (pos + colour).
     {
         std::vector<float> gridPositions;
-        pspengine::GenerateGrid(20.0f, 1.0f, gridPositions);
+        pspulse::GenerateGrid(20.0f, 1.0f, gridPositions);
         gridVertexCount_ = static_cast<int>(gridPositions.size() / 3);
 
         std::vector<float> interleaved;
@@ -521,10 +521,10 @@ const MeshGPU* SceneRenderer::ModelMesh(const std::string& projectRelativePath,
     const bool isAbsolute = !fullPath.empty() && (fullPath[0] == '/' || fullPath[0] == '\\');
     if (!isAbsolute && !projectRoot.empty()) fullPath = projectRoot + "/" + projectRelativePath;
 
-    pspengine::MeshData data;
-    pspengine::GltfLoadStats stats;
+    pspulse::MeshData data;
+    pspulse::GltfLoadStats stats;
     std::string loadError;
-    if (!pspengine::LoadGltfMesh(fullPath, data, stats, loadError)) {
+    if (!pspulse::LoadGltfMesh(fullPath, data, stats, loadError)) {
         modelErrors_[projectRelativePath] = loadError;
         if (error) *error = loadError;
         models_.emplace(projectRelativePath, MeshGPU{}); // remember the failure
@@ -545,7 +545,7 @@ void SceneRenderer::EnsureMeshes() {
     for (int i = 0; i <= static_cast<int>(PrimitiveType::Plane); ++i) {
         if (meshes_.count(i)) continue;
         PrimitiveType type = static_cast<PrimitiveType>(i);
-        pspengine::MeshData data = pspengine::GeneratePrimitive(type, 24);
+        pspulse::MeshData data = pspulse::GeneratePrimitive(type, 24);
         meshes_[i].Upload(data);
     }
 }
@@ -560,7 +560,7 @@ void SceneRenderer::DrawObject(const Scene& scene, const GameObject& object, int
         model = ModelMesh(object.meshPath, projectRoot, nullptr);
         if (!model) return;
     }
-    const pspengine::MeshData* unused = nullptr;
+    const pspulse::MeshData* unused = nullptr;
     (void)unused;
     MeshGPU* primitiveMesh = nullptr;
     if (!model) {

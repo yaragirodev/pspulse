@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-#  PSP Engine Runtime - PSPSDK build
+#  PSPulse Runtime - PSPSDK build
 #
 #  Usage:
 #      make                 # builds EBOOT.PBP into ../bin/PSPRuntime
@@ -11,8 +11,8 @@
 #      export PATH=$PATH:$PSPDEV/bin
 # ---------------------------------------------------------------------------
 
-TARGET      = PSPEngineRuntime
-TITLE       = PSP Engine Runtime
+TARGET      = PSPulseRuntime
+TITLE       = PSPulse Runtime
 PSP_EBOOT_TITLE = $(TITLE)
 BUILD_PRX   = 0
 PSP_FW_VERSION = 600

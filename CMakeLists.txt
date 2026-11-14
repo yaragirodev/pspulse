@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-#  PSP Engine - desktop editor (Windows / Linux)
+#  PSPulse - desktop editor (Windows / Linux)
 #
 #  Dependencies are fetched automatically with CMake FetchContent:
 #      GLFW 3.4, GLM 1.0.1, glad (vendored, OpenGL 3.3 core),
@@ -9,25 +9,45 @@
 #  Configure & build:
 #      cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 #      cmake --build build --config Release -j
-#      # binary: bin/Editor/PSPEditor(.exe)
+#      # binary: bin/PSPulse/PSPulse(.exe)
 # ---------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.16)
-project(PSPEditor VERSION 1.0.0 LANGUAGES C CXX)
+
+# Version comes from the git tag when available (v1.2.3 or 1.2.3), so a release
+# build always reports the same version as the GitHub Release it belongs to.
+set(PSPULSE_VERSION "1.0.0")
+if(EXISTS ${CMAKE_SOURCE_DIR}/.git)
+    execute_process(
+        COMMAND git describe --tags --abbrev=0 --match "v*"
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE _pspulse_tag
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET RESULT_VARIABLE _pspulse_rc)
+    if(_pspulse_rc EQUAL 0 AND _pspulse_tag)
+        string(REGEX REPLACE "^v" "" _pspulse_ver "${_pspulse_tag}")
+        if(_pspulse_ver MATCHES "^[0-9]+\.[0-9]+\.[0-9]+")
+            set(PSPULSE_VERSION "${_pspulse_ver}")
+        endif()
+    endif()
+endif()
+message(STATUS "PSPulse version: ${PSPULSE_VERSION}")
+
+project(PSPulse VERSION ${PSPULSE_VERSION} LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Ship a self-contained PSPEditor.exe: MSVCP140.dll / VCRUNTIME140.dll are not
+# Ship a self-contained PSPulse.exe: MSVCP140.dll / VCRUNTIME140.dll are not
 # present on a stock Windows install, so link the CRT statically (must be set
 # before any target is created).
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/Editor)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/PSPulse)
 foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR}/bin/Editor)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR}/bin/PSPulse)
 endforeach()
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -181,95 +201,96 @@ set(EDITOR_SOURCES
 # Console subsystem on both platforms: the editor logs startup diagnostics
 # (OpenGL version, PSPSDK detection) and the build pipeline output, which a
 # WIN32 (GUI subsystem) binary would swallow.
-add_executable(PSPEditor ${EDITOR_SOURCES})
-set_target_properties(PSPEditor PROPERTIES OUTPUT_NAME "PSPEditor")
+add_executable(PSPulse ${EDITOR_SOURCES})
+set_target_properties(PSPulse PROPERTIES OUTPUT_NAME "PSPulse")
 
 if(WIN32 AND MINGW)
     # Static MinGW runtime: the .exe then runs without libstdc++-6.dll,
     # libgcc_s_seh-1.dll and libwinpthread-1.dll sitting next to it.
-    target_link_options(PSPEditor PRIVATE -static -static-libgcc -static-libstdc++)
+    target_link_options(PSPulse PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
 
-target_include_directories(PSPEditor PRIVATE
+target_include_directories(PSPulse PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/Editor/Source
     ${CMAKE_SOURCE_DIR}/third_party
     ${CMAKE_SOURCE_DIR}/third_party/glad/include)
 
-target_link_libraries(PSPEditor PRIVATE
+target_link_libraries(PSPulse PRIVATE
     imgui imgui_gizmo glad lua_static
     glfw glm::glm nlohmann_json::nlohmann_json
     ${PSPEDITOR_PLATFORM_LIBS})
 
 if(WIN32)
-    target_link_libraries(PSPEditor PRIVATE opengl32)
-    target_compile_definitions(PSPEditor PRIVATE _CRT_SECURE_NO_WARNINGS NOMINMAX GLFW_EXPOSE_NATIVE_WIN32)
+    target_link_libraries(PSPulse PRIVATE opengl32)
+    target_compile_definitions(PSPulse PRIVATE _CRT_SECURE_NO_WARNINGS NOMINMAX GLFW_EXPOSE_NATIVE_WIN32)
 else()
-    target_compile_definitions(PSPEditor PRIVATE GLFW_EXPOSE_NATIVE_X11)
+    target_compile_definitions(PSPulse PRIVATE GLFW_EXPOSE_NATIVE_X11)
 endif()
 
 if(MSVC)
-    target_compile_options(PSPEditor PRIVATE /W3 /utf-8 /MP)
+    target_compile_options(PSPulse PRIVATE /W3 /utf-8 /MP)
 else()
-    target_compile_options(PSPEditor PRIVATE -Wall -Wextra -Wno-unused-parameter)
+    target_compile_options(PSPulse PRIVATE -Wall -Wextra -Wno-unused-parameter)
 endif()
 
 # GLM: matrix decomposition / intersections require the experimental extensions.
-target_compile_definitions(PSPEditor PRIVATE GLM_ENABLE_EXPERIMENTAL)
+target_compile_definitions(PSPulse PRIVATE GLM_ENABLE_EXPERIMENTAL)
+target_compile_definitions(PSPulse PRIVATE PSPULSE_BUILD_VERSION="${PSPULSE_VERSION}")
 
 # ---------------------------------------------------------------------------
 # Copy the PSP runtime templates next to the editor binary so the Build
 # Settings panel can find them at runtime.
 # ---------------------------------------------------------------------------
-add_custom_command(TARGET PSPEditor POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/bin/Editor/PSPRuntime
+add_custom_command(TARGET PSPulse POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/bin/PSPulse/PSPRuntime
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/PSPRuntime/Source
-        ${CMAKE_SOURCE_DIR}/bin/Editor/PSPRuntime/Source
+        ${CMAKE_SOURCE_DIR}/bin/PSPulse/PSPRuntime/Source
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/PSPRuntime/Include
-        ${CMAKE_SOURCE_DIR}/bin/Editor/PSPRuntime/Include
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/bin/Editor/PSPRuntime/lib
+        ${CMAKE_SOURCE_DIR}/bin/PSPulse/PSPRuntime/Include
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/bin/PSPulse/PSPRuntime/lib
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Shared ${CMAKE_SOURCE_DIR}/bin/Editor/Shared
+        ${CMAKE_SOURCE_DIR}/Shared ${CMAKE_SOURCE_DIR}/bin/PSPulse/Shared
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/third_party/lua ${CMAKE_SOURCE_DIR}/bin/Editor/third_party/lua
+        ${CMAKE_SOURCE_DIR}/third_party/lua ${CMAKE_SOURCE_DIR}/bin/PSPulse/third_party/lua
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/third_party/glm ${CMAKE_SOURCE_DIR}/bin/Editor/third_party/glm
+        ${CMAKE_SOURCE_DIR}/third_party/glm ${CMAKE_SOURCE_DIR}/bin/PSPulse/third_party/glm
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/third_party/nlohmann_json ${CMAKE_SOURCE_DIR}/bin/Editor/third_party/nlohmann_json
+        ${CMAKE_SOURCE_DIR}/third_party/nlohmann_json ${CMAKE_SOURCE_DIR}/bin/PSPulse/third_party/nlohmann_json
     COMMENT "Staging PSP runtime sources next to the editor")
 
 # PSPRuntime/lib holds libpsplua.a and the Lua objects produced by
 # `make -C PSPRuntime`; it is not part of the repository, so stage it only when
 # the runtime has been built already (otherwise the editor builds Lua itself).
-add_custom_command(TARGET PSPEditor POST_BUILD
+add_custom_command(TARGET PSPulse POST_BUILD
     COMMAND ${CMAKE_COMMAND}
         -DPSPRUNTIME_SRC=${CMAKE_SOURCE_DIR}/PSPRuntime/lib
-        -DDEST=${CMAKE_SOURCE_DIR}/bin/Editor/PSPRuntime/lib
+        -DDEST=${CMAKE_SOURCE_DIR}/bin/PSPulse/PSPRuntime/lib
         -P ${CMAKE_SOURCE_DIR}/cmake/StageLuaLib.cmake)
 
 # ---------------------------------------------------------------------------
 # Headless regression tests (no OpenGL / window): Lua bridge, scene IO.
-#   cmake --build build --target PSPEngineTests && ctest --test-dir build
+#   cmake --build build --target PSPulseTests && ctest --test-dir build
 # ---------------------------------------------------------------------------
 option(PSPEDITOR_BUILD_TESTS "Build headless regression tests" ON)
 
 if(PSPEDITOR_BUILD_TESTS)
     enable_testing()
-    add_executable(PSPEngineTests
+    add_executable(PSPulseTests
         Tests/lua_vm_test.cpp
         Shared/Mesh/GltfLoader.cpp
         Shared/Scene/SceneData.cpp
         Shared/Scene/SceneIO.cpp
         Shared/Scripting/LuaVM.cpp)
-    target_include_directories(PSPEngineTests PRIVATE
+    target_include_directories(PSPulseTests PRIVATE
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/third_party)
-    target_link_libraries(PSPEngineTests PRIVATE
+    target_link_libraries(PSPulseTests PRIVATE
         lua_static glm::glm nlohmann_json::nlohmann_json ${PSPEDITOR_PLATFORM_LIBS})
-    target_compile_definitions(PSPEngineTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
-    add_test(NAME lua_vm COMMAND PSPEngineTests)
+    target_compile_definitions(PSPulseTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
+    add_test(NAME lua_vm COMMAND PSPulseTests)
 
     add_executable(GltfLoaderTests Tests/gltf_test.cpp Shared/Mesh/GltfLoader.cpp)
     target_include_directories(GltfLoaderTests PRIVATE
@@ -296,4 +317,4 @@ if(PSPEDITOR_BUILD_TESTS)
              COMMAND PngTests ${CMAKE_SOURCE_DIR}/projects/MyPSPGame/assets/ICON0.PNG)
 endif()
 
-message(STATUS "PSPEditor: binary will be written to ${CMAKE_SOURCE_DIR}/bin/Editor")
+message(STATUS "PSPulse: binary will be written to ${CMAKE_SOURCE_DIR}/bin/PSPulse")

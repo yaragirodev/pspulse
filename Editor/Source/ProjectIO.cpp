@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - filesystem, process & project helpers
+//  PSPulse Editor - filesystem, process & project helpers
 // ---------------------------------------------------------------------------
 
 #include "ProjectIO.h"
@@ -249,7 +249,7 @@ std::string FindPspsdkBin(const std::string& explicitPspsdkPath, std::string& de
 
 namespace {
 
-const char* kExampleScript = R"(-- spin.lua - example PSP Engine script
+const char* kExampleScript = R"(-- spin.lua - example PSPulse script
 -- The owning object slowly spins and bobs above the ground.
 local t = 0
 local baseY = 0
@@ -316,7 +316,7 @@ bool CreateProject(const std::string& rootDir, const std::string& displayName, P
 
     // project.json
     {
-        std::string json = "{\n  \"name\": \"" + project.name + "\",\n  \"engine\": \"PSP Engine\",\n" +
+        std::string json = "{\n  \"name\": \"" + project.name + "\",\n  \"engine\": \"PSPulse\",\n" +
                            "  \"version\": \"1.0.0\",\n  \"mainScene\": \"scenes/main.scene\"\n}\n";
         if (!fsx::WriteTextFile(fsx::PathJoin(project.rootPath, "project.json"), json)) {
             error = "Cannot write project.json";
@@ -325,9 +325,9 @@ bool CreateProject(const std::string& rootDir, const std::string& displayName, P
     }
 
     // Default scene.
-    pspengine::Scene scene = pspengine::MakeDefaultScene();
+    pspulse::Scene scene = pspulse::MakeDefaultScene();
     std::string sceneError;
-    if (!pspengine::SaveSceneToFile(scene, fsx::PathJoin(project.rootPath, "scenes/main.scene"),
+    if (!pspulse::SaveSceneToFile(scene, fsx::PathJoin(project.rootPath, "scenes/main.scene"),
                                     sceneError)) {
         error = "Cannot write default scene: " + sceneError;
         return false;
@@ -378,7 +378,7 @@ bool LoadProject(const std::string& rootDir, Project& outProject, std::string& e
 
     std::string buildText;
     if (fsx::ReadTextFile(fsx::PathJoin(project.rootPath, "build.json"), buildText)) {
-        project.package = pspengine::PackageInfo::FromJson(buildText);
+        project.package = pspulse::PackageInfo::FromJson(buildText);
     } else {
         project.package.title = project.name;
     }
@@ -395,7 +395,7 @@ bool SaveProject(const Project& project, std::string& error) {
         return false;
     }
     std::string projectJson =
-        "{\n  \"name\": \"" + project.name + "\",\n  \"engine\": \"PSP Engine\",\n" +
+        "{\n  \"name\": \"" + project.name + "\",\n  \"engine\": \"PSPulse\",\n" +
         "  \"version\": \"1.0.0\",\n  \"mainScene\": \"scenes/main.scene\"\n}\n";
     if (!fsx::WriteTextFile(fsx::PathJoin(project.rootPath, "project.json"), projectJson)) {
         error = "cannot write project.json";

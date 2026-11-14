@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - editor application state implementation
+//  PSPulse Editor - editor application state implementation
 // ---------------------------------------------------------------------------
 
 #include "EditorState.h"
@@ -14,9 +14,9 @@
 
 namespace pspeditor {
 
-using pspengine::GameObject;
-using pspengine::PrimitiveType;
-using pspengine::Scene;
+using pspulse::GameObject;
+using pspulse::PrimitiveType;
+using pspulse::Scene;
 
 // --------------------------------------------------------------------------
 // SelectionHistory
@@ -69,9 +69,9 @@ bool EditorState::OpenProject(const std::string& rootDir, std::string& error) {
 
     std::string sceneError;
     std::string sceneFile = ResolveProjectPath(project.package.scene);
-    if (!pspengine::LoadSceneFromFile(sceneFile, scene, sceneError)) {
+    if (!pspulse::LoadSceneFromFile(sceneFile, scene, sceneError)) {
         LogWarning("Could not load " + sceneFile + " (" + sceneError + "), creating a new scene.");
-        scene = pspengine::MakeDefaultScene();
+        scene = pspulse::MakeDefaultScene();
     }
     scenePath = sceneFile;
     sceneDirty = false;
@@ -96,7 +96,7 @@ bool EditorState::OpenProject(const std::string& rootDir, std::string& error) {
 
 bool EditorState::SaveScene(std::string& error) {
     if (scenePath.empty()) return CreateNewScene(error);
-    if (!pspengine::SaveSceneToFile(scene, scenePath, error)) return false;
+    if (!pspulse::SaveSceneToFile(scene, scenePath, error)) return false;
     sceneDirty = false;
     LogInfo("Scene saved: " + scenePath);
     if (project.valid) {
@@ -108,7 +108,7 @@ bool EditorState::SaveScene(std::string& error) {
 
 bool EditorState::LoadSceneFromPath(const std::string& path, std::string& error) {
     Scene loaded;
-    if (!pspengine::LoadSceneFromFile(path, loaded, error)) return false;
+    if (!pspulse::LoadSceneFromFile(path, loaded, error)) return false;
     scene = loaded;
     scenePath = path;
     sceneDirty = false;
@@ -121,7 +121,7 @@ bool EditorState::LoadSceneFromPath(const std::string& path, std::string& error)
 }
 
 bool EditorState::CreateNewScene(std::string& error) {
-    scene = pspengine::MakeDefaultScene();
+    scene = pspulse::MakeDefaultScene();
     if (project.valid) {
         scenePath = fsx::PathJoin(project.rootPath, "scenes/main.scene");
     } else {
@@ -188,7 +188,7 @@ int EditorState::FindObjectIndexById(int id) const {
 }
 
 void EditorState::AddPrimitive(PrimitiveType type) {
-    std::string baseName = pspengine::PrimitiveDisplayName(type);
+    std::string baseName = pspulse::PrimitiveDisplayName(type);
     int count = 1;
     for (const auto& object : scene.objects) {
         if (object.name.rfind(baseName, 0) == 0) ++count;

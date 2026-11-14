@@ -1,0 +1,268 @@
+name: Release
+
+# Publishes a GitHub Release with ready-to-run binaries.
+#
+# Triggers:
+#   * pushing a tag   -> release v1.2.3 (version taken from the tag)
+#   * manual dispatch -> release v<version> with the version typed in the form
+#
+# Every artifact here is built from source in this run: nothing is uploaded by
+# hand, so a release can be reproduced later from its tag.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 1.0.1)"
+        required: true
+        default: "1.0.1"
+      prerelease:
+        description: "Mark as pre-release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Everything that needs a compiler, in parallel.
+  # ---------------------------------------------------------------------------
+  windows-msvc:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect Visual Studio generator
+        id: vs
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) { throw "vswhere.exe not found" }
+          $ver = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
+          if (-not $ver) { throw "No Visual Studio with the C++ workload found" }
+          $major = [int]($ver.Split('.')[0])
+          $gen = switch ($major) {
+            17 { "Visual Studio 17 2022" }
+            18 { "Visual Studio 18 2026" }
+            default { throw "Unsupported Visual Studio version: $ver" }
+          }
+          "generator=$gen" >> $env:GITHUB_OUTPUT
+
+      - name: Configure
+        run: cmake -S . -B build -G "${{ steps.vs.outputs.generator }}" -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -j 4
+
+      - name: Test
+        working-directory: build
+        run: ctest -C Release --output-on-failure
+
+      - name: Stage release files
+        shell: pwsh
+        run: |
+          $version = "${{ github.event.inputs.version }}"
+          if (-not $version) { $version = "${{ github.ref_name }}".TrimStart("v") }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item bin/PSPulse/PSPulse.exe dist/PSPulse-$version-windows-x64.exe
+          Copy-Item README.md dist/README.md
+          Copy-Item LICENSE dist/LICENSE
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows-msvc
+          path: dist/*
+
+  windows-mingw:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j 4
+
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure
+
+      - name: Stage release files
+        shell: pwsh
+        run: |
+          $version = "${{ github.event.inputs.version }}"
+          if (-not $version) { $version = "${{ github.ref_name }}".TrimStart("v") }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item bin/PSPulse/PSPulse.exe dist/PSPulse-$version-windows-x64-mingw.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows-mingw
+          path: dist/*
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build \
+            libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev \
+            libxcursor-dev libxi-dev xvfb
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j 4
+
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure
+
+      - name: Stage release files
+        run: |
+          version="${{ github.event.inputs.version }}"
+          if [ -z "$version" ]; then version="${GITHUB_REF_NAME#v}"; fi
+          mkdir -p dist
+          # Self-contained binary: the shared libraries it needs are standard on
+          # any desktop Linux with an OpenGL driver.
+          cp bin/PSPulse/PSPulse "dist/PSPulse-$version-linux-x64"
+          strip "dist/PSPulse-$version-linux-x64" || true
+          chmod +x "dist/PSPulse-$version-linux-x64"
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: dist/*
+
+  psp-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PSPSDK (prebuilt pspdev)
+        run: |
+          curl -L --fail -o pspdev.tar.gz \
+            https://github.com/pspdev/pspdev/releases/latest/download/pspdev-debian-latest.tar.gz
+          sudo tar -xzf pspdev.tar.gz -C /opt
+          echo "PSPDEV=/opt/pspdev" >> "$GITHUB_ENV"
+          echo "/opt/pspdev/bin" >> "$GITHUB_PATH"
+
+      - name: Build runtime template
+        working-directory: PSPRuntime
+        run: |
+          make clean
+          make
+          make dist
+
+      - name: Stage release files
+        run: |
+          version="${{ github.event.inputs.version }}"
+          if [ -z "$version" ]; then version="${GITHUB_REF_NAME#v}"; fi
+          mkdir -p dist
+          cp bin/PSPRuntime/EBOOT.PBP "dist/PSPulse-$version-runtime-template.EBOOT.PBP"
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-psp
+          path: dist/*
+
+  # ---------------------------------------------------------------------------
+  # 2. Create the release once every build has succeeded.
+  # ---------------------------------------------------------------------------
+  publish:
+    needs: [windows-msvc, windows-mingw, linux, psp-runtime]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            version="${{ github.event.inputs.version }}"
+          else
+            version="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          # CHECKSUMS.txt lets users verify the download without trusting the
+          # GitHub UI; regenerated on every release.
+          sha256sum * > CHECKSUMS.txt
+          cat CHECKSUMS.txt
+
+      - name: List release files
+        run: ls -l dist
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Absolute paths: publish does not check out the repo, because the
+          # commit a tag points at is not known yet when tagging from the UI.
+          files: ${{ github.workspace }}/dist/*
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: PSPulse ${{ steps.ver.outputs.version }}
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          body: |
+            ## PSPulse ${{ steps.ver.outputs.version }}
+
+            3D engine and scene editor for the PlayStation Portable.
+
+            ### Downloads
+
+            | File | Platform | Notes |
+            |------|----------|-------|
+            | `PSPulse-${{ steps.ver.outputs.version }}-windows-x64.exe` | Windows x64 | MSVC, static CRT — no VC++ Redistributable needed |
+            | `PSPulse-${{ steps.ver.outputs.version }}-windows-x64-mingw.exe` | Windows x64 | MinGW build, alternative toolchain |
+            | `PSPulse-${{ steps.ver.outputs.version }}-linux-x64` | Linux x64 | needs a working OpenGL driver |
+            | `PSPulse-${{ steps.ver.outputs.version }}-runtime-template.EBOOT.PBP` | PSP | engine runtime template |
+
+            `CHECKSUMS.txt` contains SHA-256 hashes for every file.
+
+            ### Building a game
+
+            ```bash
+            PSPulse --project path/to/project --build     # -> build/pkg/EBOOT.PBP
+            ```
+
+            Or press **F5** in the editor. Building an EBOOT needs the PSPSDK
+            toolchain; the editor offers to install it on first use (Linux, or
+            Windows via WSL2).
+
+      - name: Summary
+        run: |
+          {
+            echo "### PSPulse ${{ steps.ver.outputs.version }} released"
+            echo ""
+            echo "| Artifact | Size |"
+            echo "|----------|------|"
+            for f in dist/*; do
+              printf '| `%s` | %s |\n' "$(basename "$f")" "$(du -h "$f" | cut -f1)"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

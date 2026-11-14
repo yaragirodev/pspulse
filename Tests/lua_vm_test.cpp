@@ -14,7 +14,7 @@
 #include "Shared/Scene/SceneData.h"
 #include "Shared/Scripting/LuaVM.h"
 
-using namespace pspengine;
+using namespace pspulse;
 
 namespace {
 

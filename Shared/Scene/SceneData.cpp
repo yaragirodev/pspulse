@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine - runtime scene model implementation
+//  PSPulse - runtime scene model implementation
 // ---------------------------------------------------------------------------
 
 #include "SceneData.h"
@@ -14,7 +14,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/intersect.hpp>
 
-namespace pspengine {
+namespace pspulse {
 
 // --------------------------------------------------------------------------
 // Enum <-> string
@@ -412,4 +412,4 @@ RaycastHit Scene::Raycast(const glm::vec3& origin, const glm::vec3& direction) c
     return hit;
 }
 
-} // namespace pspengine
+} // namespace pspulse

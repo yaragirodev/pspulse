@@ -14,9 +14,9 @@ bool LoadGltfMeshToGltfData(const unsigned char* data, unsigned int size, const 
     out.normals.clear();
     out.indices.clear();
 
-    pspengine::MeshData mesh;
-    pspengine::GltfLoadStats stats;
-    if (!pspengine::LoadGltfMeshFromMemory(data, size, sourceName ? sourceName : "model", mesh, stats,
+    pspulse::MeshData mesh;
+    pspulse::GltfLoadStats stats;
+    if (!pspulse::LoadGltfMeshFromMemory(data, size, sourceName ? sourceName : "model", mesh, stats,
                                           error)) {
         return false;
     }

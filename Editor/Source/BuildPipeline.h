@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - "Build EBOOT.PBP" pipeline
+//  PSPulse Editor - "Build EBOOT.PBP" pipeline
 //
 //  Steps executed by BuildGame():
 //    1. validate build settings (title, title id, icon/pic/snd),

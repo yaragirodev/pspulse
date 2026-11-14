@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - lightweight kinematic physics (shared by editor & PSP runtime)
+//  PSPulse - lightweight kinematic physics (shared by editor & PSP runtime)
 //
 //  The solver is intentionally small (PSP class CPU, no external deps):
 //    * gravity integration for dynamic bodies,
@@ -15,7 +15,7 @@
 
 #include "../Scene/SceneData.h"
 
-namespace pspengine {
+namespace pspulse {
 
 struct Collider {
     int objectId = -1;
@@ -50,4 +50,4 @@ private:
     std::vector<Collider> colliders_;
 };
 
-} // namespace pspengine
+} // namespace pspulse

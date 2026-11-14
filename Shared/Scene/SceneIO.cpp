@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine - JSON scene & project serialisation
+//  PSPulse - JSON scene & project serialisation
 // ---------------------------------------------------------------------------
 
 #include "SceneIO.h"
@@ -13,7 +13,7 @@
 
 using nlohmann::json;
 
-namespace pspengine {
+namespace pspulse {
 
 namespace {
 
@@ -147,9 +147,9 @@ GameObject DeserializeObject(const json& j) {
 
 std::string SceneToJson(const Scene& scene) {
     json root;
-    root["format"] = PSPENGINE_SCENE_FORMAT;
-    root["formatVersion"] = PSPENGINE_SCENE_VERSION;
-    root["engine"] = PSPENGINE_VERSION_STR;
+    root["format"] = PSPULSE_SCENE_FORMAT;
+    root["formatVersion"] = PSPULSE_SCENE_VERSION;
+    root["engine"] = PSPULSE_VERSION_STR;
     root["name"] = scene.name;
     root["version"] = scene.version;
     root["ambient"] = Vec3ToJson(scene.ambient);
@@ -289,4 +289,4 @@ Scene MakeDefaultScene() {
     return scene;
 }
 
-} // namespace pspengine
+} // namespace pspulse

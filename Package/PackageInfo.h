@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - game package description (Build Settings -> EBOOT.PBP)
+//  PSPulse - game package description (Build Settings -> EBOOT.PBP)
 //
 //  Used by the editor (Build Settings panel + packaging pipeline) and by the
 //  PSP runtime (compiled into the EBOOT so it can read its own metadata).
@@ -11,13 +11,13 @@
 
 #include <nlohmann/json.hpp>
 
-namespace pspengine {
+namespace pspulse {
 
 struct PackageInfo {
     // XMB metadata.
-    std::string title = "PSP Engine Game";
+    std::string title = "PSPulse Game";
     std::string titleId = "PSPENG000"; // 4..9 chars, [A-Z0-9]
-    std::string developer = "PSP Engine";
+    std::string developer = "PSPulse";
     std::string version = "1.00";
     std::string parentalLevel = "1";
 
@@ -79,4 +79,4 @@ struct PackageInfo {
     }
 };
 
-} // namespace pspengine
+} // namespace pspulse

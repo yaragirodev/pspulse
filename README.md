@@ -1,4 +1,4 @@
-# PSP Engine — кроссплатформенный 3D-движок и редактор сцен для PlayStation Portable
+# PSPulse — кроссплатформенный 3D-движок и редактор сцен для PlayStation Portable
 
 Редактор сцен (PC, GLFW + OpenGL 3.3 + Dear ImGui docking + ImGuizmo) и рантайм
 для PlayStation Portable (PSPSDK, GU/GUM, встроенный Lua 5.4). Редактор умеет
@@ -27,7 +27,7 @@ Tests/           headless-тесты: Lua-мост, glTF-загрузчик (cte
 third_party/     glm, nlohmann_json, dear imgui (docking), ImGuizmo, glad,
                  stb, lua 5.4.6
 projects/        Проекты редактора (MyPSPGame — пример)
-bin/Editor/      PSPEditor(.exe)
+bin/PSPulse/     PSPulse(.exe)
 bin/PSPRuntime/  EBOOT.PBP (шаблон рантайма)
 screenshots/     Скриншоты сборок в PPSSPP
 ```
@@ -59,12 +59,12 @@ cmake -S /home/user -B /home/user/build -DCMAKE_BUILD_TYPE=Release
 cmake --build /home/user/build -j$(nproc)
 ```
 
-Результат: `bin/Editor/PSPEditor` (Linux) или `bin/Editor/PSPEditor.exe`
+Результат: `bin/PSPulse/PSPulse` (Linux) или `bin/PSPulse/PSPulse.exe`
 (Windows, MSVC/MinGW). Запуск:
 
 ```bash
-bin/Editor/PSPEditor                       # пустое окно редактора
-bin/Editor/PSPEditor --project projects/MyPSPGame
+bin/PSPulse/PSPulse                       # пустое окно редактора
+bin/PSPulse/PSPulse --project projects/MyPSPGame
 ```
 
 ## Сборка PSP-рантайма (make)
@@ -125,8 +125,8 @@ cd PSPRuntime && make clean && make && make dist
 
 | Job | Тулчейн | Артефакт | Размер |
 |-----|---------|----------|--------|
-| `build-windows` | MSVC (VS2022/VS2026, x64) | `PSPEditor-windows-x64` | ~2.2 МБ |
-| `build-mingw` | MinGW-w64 | `PSPEditor-windows-mingw` | ~5.9 МБ |
+| `build-windows` | MSVC (VS2022/VS2026, x64) | `PSPulse-windows-msvc` | ~2.2 МБ |
+| `build-mingw` | MinGW-w64 | `PSPulse-windows-mingw` | ~5.9 МБ |
 
 Оба бинарника самодостаточны: CRT слинкован статически
 (`CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded` для MSVC,
@@ -140,13 +140,13 @@ cd PSPRuntime && make clean && make && make dist
 ```powershell
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -j
-# bin/Editor/PSPEditor.exe
+# bin/PSPulse/PSPulse.exe
 ```
 
 ### Headless-сборка игры (CI/скрипты)
 
 ```bash
-./bin/Editor/PSPEditor --project projects/MyPSPGame --build
+./bin/PSPulse/PSPulse --project projects/MyPSPGame --build
 # projects/MyPSPGame/build/pkg/EBOOT.PBP
 ```
 
@@ -160,6 +160,30 @@ Prebuilt-тулчейн pspdev выпускается только под Linux 
 Под Windows он запускается через **WSL2** (проще всего) или MSYS2. Редактор
 это учитывает: путь к `psp-gcc` можно указать вручную, а кнопка «Install
 PSPSDK...» под Windows предложит WSL2.
+
+## Релизы
+
+Релиз собирается и публикуется автоматически (`.github/workflows/release.yml`):
+каждый артефакт компилируется из исходников в этом же прогоне, ничего не
+загружается вручную.
+
+```bash
+git tag v1.0.1 && git push origin v1.0.1      # релиз v1.0.1
+```
+
+Либо вручную: **Actions → Release → Run workflow** и указать версию
+(без тега тоже работает). Публикуются только если все сборки прошли.
+
+| Файл | Платформа |
+|------|-----------|
+| `PSPulse-<ver>-windows-x64.exe` | Windows x64, MSVC, статический CRT |
+| `PSPulse-<ver>-windows-x64-mingw.exe` | Windows x64, MinGW |
+| `PSPulse-<ver>-linux-x64` | Linux x64 |
+| `PSPulse-<ver>-runtime-template.EBOOT.PBP` | PSP, шаблон рантайма |
+
+Плюс `CHECKSUMS.txt` с SHA-256 каждого файла. Версия в бинарнике берётся из
+git-тега (`PSPulse version: X.Y.Z` при конфигурации), поэтому `--version`
+в окне редактора совпадает с релизом.
 
 ## Устранение неполадок
 
@@ -188,7 +212,7 @@ cmake --build build -j && cd build && ctest --output-on-failure
 
 ## Проверено
 
-* `bin/Editor/PSPEditor` запускается под Xvfb, все панели и ImGuizmo работают.
+* `bin/PSPulse/PSPulse` запускается под Xvfb, все панели и ImGuizmo работают.
 * `bin/PSPRuntime/EBOOT.PBP` — сцена + HUD в PPSSPP (скриншот
   `screenshots/psp_make_build_eboot.png`).
 * `projects/MyPSPGame/build/pkg/EBOOT.PBP`, собранный **из GUI редактора** —
@@ -204,5 +228,5 @@ cmake --build build -j && cd build && ctest --output-on-failure
   PPSSPP — `FPS 62 OBJ 10 LUA 1` (`screenshots/psp_clean_checkout_build.png`).
   CI-EBOOT при этом побайтно совпадает с локальным (`md5 717d457c…`).
 * **GitHub Actions:** все 4 job'а зелёные (Windows MSVC, Windows MinGW,
-  Linux, PSP runtime); артефакты `PSPEditor.exe` запускаются без
+  Linux, PSP runtime); артефакты `PSPulse.exe` запускаются без
   Redistributable.

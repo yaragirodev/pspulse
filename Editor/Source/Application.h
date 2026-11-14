@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - application shell (GLFW + OpenGL 3.3 + ImGui docking)
+//  PSPulse Editor - application shell (GLFW + OpenGL 3.3 + ImGui docking)
 // ---------------------------------------------------------------------------
 
 #include <atomic>

@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - free / orbit viewport camera
+//  PSPulse Editor - free / orbit viewport camera
 //
 //  Controls (Unity-like):
 //    RMB + drag .......... look around

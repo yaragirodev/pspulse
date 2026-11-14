@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine - glTF 2.0 mesh loader (implementation)
+//  PSPulse - glTF 2.0 mesh loader (implementation)
 // ---------------------------------------------------------------------------
 
 #include "GltfLoader.h"
@@ -22,7 +22,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-namespace pspengine {
+namespace pspulse {
 
 namespace {
 
@@ -630,4 +630,4 @@ bool ComputeMeshBounds(const MeshData& mesh, float outMin[3], float outMax[3]) {
     return true;
 }
 
-} // namespace pspengine
+} // namespace pspulse

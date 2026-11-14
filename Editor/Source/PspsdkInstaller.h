@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - PSPSDK auto-installation
+//  PSPulse Editor - PSPSDK auto-installation
 //
 //  On the very first launch the editor looks for a working PSPSDK. When none is
 //  found it offers to download the official prebuilt toolchain from GitHub

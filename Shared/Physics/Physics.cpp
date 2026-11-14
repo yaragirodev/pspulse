@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine - lightweight kinematic physics implementation
+//  PSPulse - lightweight kinematic physics implementation
 // ---------------------------------------------------------------------------
 
 #include "Physics.h"
@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-namespace pspengine {
+namespace pspulse {
 
 namespace {
 
@@ -241,4 +241,4 @@ void PhysicsWorld::Step(Scene& scene, float dt) {
     }
 }
 
-} // namespace pspengine
+} // namespace pspulse

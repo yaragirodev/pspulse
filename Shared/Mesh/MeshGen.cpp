@@ -1,12 +1,12 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine - procedural mesh generation
+//  PSPulse - procedural mesh generation
 // ---------------------------------------------------------------------------
 
 #include "MeshGen.h"
 
 #include <cmath>
 
-namespace pspengine {
+namespace pspulse {
 
 namespace {
 
@@ -195,4 +195,4 @@ void GenerateGrid(float halfExtent, float cellSize, std::vector<float>& outPosit
     }
 }
 
-} // namespace pspengine
+} // namespace pspulse

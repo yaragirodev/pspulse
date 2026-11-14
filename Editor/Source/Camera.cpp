@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - free / orbit viewport camera
+//  PSPulse Editor - free / orbit viewport camera
 // ---------------------------------------------------------------------------
 
 #include "Camera.h"

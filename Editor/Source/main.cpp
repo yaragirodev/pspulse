@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - entry point
+//  PSPulse Editor - entry point
 //
 //  Cross-platform 3D scene editor for the PlayStation Portable runtime.
 //  Built with GLFW + OpenGL 3.3 + Dear ImGui (docking) + ImGuizmo.
@@ -12,7 +12,7 @@
 #include "BuildPipeline.h"
 #include "ProjectIO.h"
 
-// Headless packaging: `PSPEditor --project <dir> --build`. Used by CI to smoke
+// Headless packaging: `PSPulse --project <dir> --build`. Used by CI to smoke
 // test the whole EBOOT pipeline without an OpenGL context.
 static int RunHeadlessBuild(const std::string& projectPath) {
     pspeditor::Project project;
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     app.Shutdown();
 
     if (result != 0) {
-        std::fprintf(stderr, "PSPEditor exited with code %d\n", result);
+        std::fprintf(stderr, "PSPulse exited with code %d\n", result);
     }
     return result;
 }

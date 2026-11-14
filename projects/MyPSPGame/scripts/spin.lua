@@ -1,4 +1,4 @@
--- spin.lua - example PSP Engine script
+-- spin.lua - example PSPulse script
 -- The owning object slowly spins and bobs above the ground.
 local t = 0
 local baseY = 0

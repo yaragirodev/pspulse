@@ -1,5 +1,5 @@
 {
-  "developer": "PSP Engine",
+  "developer": "PSPulse",
   "embedAssets": true,
   "icon0": "assets/ICON0.PNG",
   "outputDir": "build/pkg",

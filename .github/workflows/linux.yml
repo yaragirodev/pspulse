@@ -35,14 +35,14 @@ jobs:
           export LIBGL_ALWAYS_SOFTWARE=1
           Xvfb :99 -screen 0 1600x920x24 &
           sleep 2
-          DISPLAY=:99 timeout 5 ./bin/Editor/PSPEditor --project projects/MyPSPGame || test $? -eq 124
+          DISPLAY=:99 timeout 5 ./bin/PSPulse/PSPulse --project projects/MyPSPGame || test $? -eq 124
           echo "editor started and survived 5 seconds"
 
       - name: Upload editor
         uses: actions/upload-artifact@v4
         with:
-          name: PSPEditor-linux-x64
-          path: bin/Editor/PSPEditor
+          name: PSPulse-linux-x64
+          path: bin/PSPulse/PSPulse
           if-no-files-found: error
 
   # PSPSDK toolchain build of the PSP runtime template (EBOOT.PBP).
@@ -90,7 +90,7 @@ jobs:
       - name: Headless EBOOT build via the editor CLI
         run: |
           rm -rf PSPRuntime/lib projects/MyPSPGame/build
-          ./bin/Editor/PSPEditor --project projects/MyPSPGame --build
+          ./bin/PSPulse/PSPulse --project projects/MyPSPGame --build
           ls -l projects/MyPSPGame/build/pkg/EBOOT.PBP
 
       - name: Upload project EBOOT

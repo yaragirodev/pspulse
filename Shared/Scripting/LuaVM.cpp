@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-//  PSP Engine - embedded Lua 5.4 scripting implementation
+//  PSPulse - embedded Lua 5.4 scripting implementation
 // ---------------------------------------------------------------------------
 
 #include "LuaVM.h"
@@ -15,7 +15,7 @@ extern "C" {
 #include "lualib.h"
 }
 
-namespace pspengine {
+namespace pspulse {
 
 // --------------------------------------------------------------------------
 // Script environment layout
@@ -499,4 +499,4 @@ void LuaVM::UpdateAll(Scene& scene, float dt) {
     if (failures == 0 && lastError_.rfind("on_update", 0) == 0) lastError_.clear();
 }
 
-} // namespace pspengine
+} // namespace pspulse

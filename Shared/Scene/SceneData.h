@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - runtime scene model (shared between editor and PSP runtime)
+//  PSPulse - runtime scene model (shared between editor and PSP runtime)
 //
 //  The data model is deliberately plain-old-data so that it can be:
 //    * edited through Dear ImGui in the desktop editor,
@@ -21,7 +21,7 @@
 
 #include <glm/glm.hpp>
 
-namespace pspengine {
+namespace pspulse {
 
 // --------------------------------------------------------------------------
 // Enumerations
@@ -176,4 +176,4 @@ struct Scene {
 glm::mat4 RotationMatrixEulerDegrees(const glm::vec3& eulerDeg);
 glm::vec3 EulerDegreesFromMatrix(const glm::mat4& matrix);
 
-} // namespace pspengine
+} // namespace pspulse

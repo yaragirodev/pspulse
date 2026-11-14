@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - glTF 2.0 mesh loader (shared editor + PSP runtime)
+//  PSPulse - glTF 2.0 mesh loader (shared editor + PSP runtime)
 //
 //  Scope, deliberately kept small enough to run on a PSP:
 //    * .gltf  (JSON, external or data: URI buffers)
@@ -19,7 +19,7 @@
 
 #include "MeshGen.h"
 
-namespace pspengine {
+namespace pspulse {
 
 struct GltfLoadStats {
     int meshes = 0;
@@ -42,4 +42,4 @@ bool LoadGltfMeshFromMemory(const unsigned char* data, size_t size, const std::s
 // Computes the axis-aligned bounding box of a mesh; returns false when empty.
 bool ComputeMeshBounds(const MeshData& mesh, float outMin[3], float outMax[3]);
 
-} // namespace pspengine
+} // namespace pspulse

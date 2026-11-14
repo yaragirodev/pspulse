@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine - embedded Lua 5.4 scripting (shared editor + PSP runtime)
+//  PSPulse - embedded Lua 5.4 scripting (shared editor + PSP runtime)
 //
 //  Lua API exposed to every script (the calling GameObject is `self`):
 //
@@ -33,7 +33,7 @@
 
 struct lua_State;
 
-namespace pspengine {
+namespace pspulse {
 
 enum class InputButton {
     Up = 0,
@@ -122,4 +122,4 @@ private:
     float lastDt_ = 0.0f;
 };
 
-} // namespace pspengine
+} // namespace pspulse

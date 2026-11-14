@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - filesystem, process & project helpers
+//  PSPulse Editor - filesystem, process & project helpers
 //  (std::filesystem based, works on Windows and Linux)
 // ---------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ namespace pspeditor {
 struct Project {
     std::string rootPath;   // absolute project directory
     std::string name = "Untitled Project";
-    pspengine::PackageInfo package;
+    pspulse::PackageInfo package;
     bool valid = false;
 };
 

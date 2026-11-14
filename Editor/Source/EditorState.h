@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - editor application state
+//  PSPulse Editor - editor application state
 // ---------------------------------------------------------------------------
 
 #include <atomic>
@@ -58,10 +58,10 @@ public:
     void Shutdown();
 
     // ---- scene editing ------------------------------------------------------
-    pspengine::GameObject* SelectedObject();
+    pspulse::GameObject* SelectedObject();
     int SelectedIndex() const;
     void Select(int index, bool recordHistory = true);
-    void AddPrimitive(pspengine::PrimitiveType type);
+    void AddPrimitive(pspulse::PrimitiveType type);
     void AddLight();
     void AddCamera();
     void DeleteSelected();
@@ -91,9 +91,9 @@ public:
 
     // ---- state (public, panel-oriented) -------------------------------------
     Project project;
-    pspengine::Scene scene;
-    pspengine::PhysicsWorld physicsWorld;
-    pspengine::LuaVM lua;
+    pspulse::Scene scene;
+    pspulse::PhysicsWorld physicsWorld;
+    pspulse::LuaVM lua;
     SceneRenderer renderer;
     EditorCamera camera;
     RenderSettings renderSettings;
@@ -108,9 +108,9 @@ public:
 
     // Play mode
     bool playing = false;
-    pspengine::Scene playSceneBefore;
+    pspulse::Scene playSceneBefore;
     float playTime = 0.0f;
-    pspengine::InputState playInput;
+    pspulse::InputState playInput;
 
     // Build state
     std::atomic<bool> building{false};

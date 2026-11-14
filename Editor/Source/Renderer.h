@@ -1,7 +1,7 @@
 #pragma once
 
 // ---------------------------------------------------------------------------
-//  PSP Engine Editor - OpenGL 3.3 scene renderer
+//  PSPulse Editor - OpenGL 3.3 scene renderer
 //
 //  * renders the scene into an offscreen framebuffer that is displayed inside
 //    the ImGui docking viewport,
@@ -61,7 +61,7 @@ private:
 // --------------------------------------------------------------------------
 class MeshGPU {
 public:
-    bool Upload(const pspengine::MeshData& data);
+    bool Upload(const pspulse::MeshData& data);
     void Draw() const;
     void Destroy();
     bool Valid() const { return vao_ != 0; }
@@ -119,12 +119,12 @@ public:
     void Shutdown();
 
     // Renders the scene into `target` (resized by caller).
-    void RenderScene(ViewportFramebuffer& target, const pspengine::Scene& scene,
+    void RenderScene(ViewportFramebuffer& target, const pspulse::Scene& scene,
                      const CameraView& camera, const RenderSettings& settings);
 
     // Picks the object under the mouse. Coordinates are in viewport pixels
     // (origin bottom-left). Returns object index or -1.
-    int PickObject(const pspengine::Scene& scene, const CameraView& camera, int pixelX, int pixelY,
+    int PickObject(const pspulse::Scene& scene, const CameraView& camera, int pixelX, int pixelY,
                    int width, int height, const std::string& projectRoot = std::string());
 
     ViewportFramebuffer& Framebuffer() { return viewportFbo_; }
@@ -138,7 +138,7 @@ private:
     // nullptr when the file cannot be loaded (the error is cached).
     const MeshGPU* ModelMesh(const std::string& projectRelativePath, const std::string& projectRoot,
                              std::string* error);
-    void DrawObject(const pspengine::Scene& scene, const pspengine::GameObject& object, int index,
+    void DrawObject(const pspulse::Scene& scene, const pspulse::GameObject& object, int index,
                     const ShaderProgram& shader, bool idPass, bool isSelected,
                     const std::string& projectRoot);
 
