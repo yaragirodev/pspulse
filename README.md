@@ -1,75 +1,79 @@
-# PSPulse — кроссплатформенный 3D-движок и редактор сцен для PlayStation Portable
+# PSPulse — a cross-platform 3D engine and scene editor for the PlayStation Portable
 
-Редактор сцен (PC, GLFW + OpenGL 3.3 + Dear ImGui docking + ImGuizmo) и рантайм
-для PlayStation Portable (PSPSDK, GU/GUM, встроенный Lua 5.4). Редактор умеет
-собирать готовый `EBOOT.PBP` одной кнопкой: сцена, Lua-скрипты и glTF-модели
-вкомпилируются в ELF, затем `mksfoex` + `pack-pbp` собирают образ.
+**English** · [Русский](README.ru.md)
 
-При первом запуске без установленного PSPSDK редактор сам предлагает скачать
-официальный тулчейн pspdev (~175 МБ) и распаковывает его рядом с собой.
+A scene editor for PC (GLFW + OpenGL 3.3 + Dear ImGui docking + ImGuizmo) and a
+runtime for the PlayStation Portable (PSPSDK, GU/GUM, embedded Lua 5.4). The
+editor packages a ready-to-run `EBOOT.PBP` with a single button press: the
+scene, Lua scripts and glTF models are compiled into the ELF, then `mksfoex` and
+`pack-pbp` produce the image.
 
-## Структура
+On first launch without PSPSDK installed, the editor offers to download the
+official pspdev toolchain (~175 MB) and unpacks it next to itself.
+
+## Layout
 
 ```
-Editor/          ПК-редактор: Application, EditorState, Panels (Outliner,
+Editor/          PC editor: Application, EditorState, Panels (Outliner,
                  Inspector, Content Browser, Viewport, Build Settings),
                  Renderer, Camera, ProjectIO, BuildPipeline
-PSPRuntime/      Рантайм PSP: RuntimeApp (GU/GUM-рендер, HUD, ввод),
-                 SceneRuntime (JSON-сцена, физика), RuntimeLua (Lua 5.4 мост),
-                 Makefile (PSPSDK), lib/libpsplua.a
-Shared/          Код, общий для редактора и рантайма: Scene (GameObject,
+PSPRuntime/      PSP runtime: RuntimeApp (GU/GUM rendering, HUD, input),
+                 SceneRuntime (JSON scene, physics), RuntimeLua (Lua 5.4
+                 bridge), Makefile (PSPSDK)
+Shared/          Code shared by the editor and the runtime: Scene (GameObject,
                  Component, Transform, PhysicsBody, CollisionShape), SceneIO
-                 (JSON), Scripting/LuaVM, Mesh (примитивы), Physics
-Shared/Mesh/     MeshGen (примитивы) + GltfLoader (glTF 2.0: .gltf/.glb)
-Shared/Json/     TinyJsonShim — JSON-фасад для PSP-сборки glTF-загрузчика
-Editor/Source/   ... + PspsdkInstaller (автоустановка тулчейна)
-Tests/           headless-тесты: Lua-мост, glTF-загрузчик, PNG (ctest)
-                 + Tests/data — фикстуры тестов
+                 (JSON), Scripting/LuaVM, Mesh primitives, Physics
+Shared/Mesh/     MeshGen (primitives) + GltfLoader (glTF 2.0: .gltf/.glb)
+Shared/Json/     TinyJsonShim — a JSON facade used by the glTF loader on PSP
+Editor/Source/   ... + PspsdkInstaller (toolchain auto-install)
+Tests/           headless tests: Lua bridge, glTF loader, PNG (ctest)
+                 + Tests/data — test fixtures
 third_party/     glm, nlohmann_json, dear imgui (docking), ImGuizmo, glad,
                  stb, lua 5.4.6
-projects/        Ваши проекты (создаются в редакторе)
+projects/        Your projects (created in the editor)
 bin/PSPulse/     PSPulse(.exe)
-bin/PSPRuntime/  EBOOT.PBP (шаблон рантайма)
+bin/PSPRuntime/  EBOOT.PBP (runtime template)
 ```
 
-## PSPSDK: автоустановка при первом запуске
+## PSPSDK: automatic installation on first launch
 
-Если `$PSPDEV`, `/usr/local/pspdev`, `/opt/pspdev` и `<editor>/pspsdk/pspdev`
-отсутствуют, редактор показывает модальное окно с предложением скачать
-официальный prebuilt-тулчейн:
+If `$PSPDEV`, `/usr/local/pspdev`, `/opt/pspdev` and `<editor>/pspsdk/pspdev`
+are all missing, the editor shows a modal dialog offering to download the
+official prebuilt toolchain:
 
-* `Tools → Install PSPSDK...` — запустить установку вручную в любой момент;
-* качается `pspdev-<platform>-latest.tar.gz` с github.com/pspdev/pspdev
-  в `<editor>/pspsdk/cache/` (кеш переиспользуется, повторно не качается);
-* распаковка в `<editor>/pspsdk/pspdev`, затем `psp-gcc --version` как проверка;
-* прогресс и лог видны в окне «PSPSDK installation», установку можно отменить;
-* на нативной Windows официальной сборки pspdev нет — редактор объясняет это
-  и предлагает WSL2/MSYS2 вместо фиктивной установки.
+* `Tools → Install PSPSDK...` starts the installation manually at any time;
+* it downloads `pspdev-<platform>-latest.tar.gz` from github.com/pspdev/pspdev
+  into `<editor>/pspsdk/cache/` (the cache is reused, never downloaded twice);
+* it unpacks to `<editor>/pspsdk/pspdev`, then verifies with `psp-gcc --version`;
+* progress and log are shown in the "PSPSDK installation" window, and the
+  installation can be cancelled;
+* there is no native Windows build of pspdev — the editor says so and points to
+  WSL2/MSYS2 instead of pretending to install something.
 
-Приоритет поиска: явный путь из Build Settings → `<editor>/pspsdk/pspdev` →
+Lookup order: explicit path from Build Settings → `<editor>/pspsdk/pspdev` →
 `$PSPDEV` → `/usr/local/pspdev` → `/opt/pspdev`.
 
-## Сборка ПК-редактора
+## Building the desktop editor
 
-Нужны CMake ≥ 3.16 и компилятор C++17. Все зависимости тянутся CMake
-FetchContent / system-пакетами, вручную ничего ставить не нужно.
-
-```bash
-cmake -S /home/user -B /home/user/build -DCMAKE_BUILD_TYPE=Release
-cmake --build /home/user/build -j$(nproc)
-```
-
-Результат: `bin/PSPulse/PSPulse` (Linux) или `bin/PSPulse/PSPulse.exe`
-(Windows, MSVC/MinGW). Запуск:
+Requires CMake ≥ 3.16 and a C++17 compiler. Every dependency is pulled in by
+CMake FetchContent or a system package; nothing has to be installed by hand.
 
 ```bash
-bin/PSPulse/PSPulse                       # пустое окно редактора
-bin/PSPulse/PSPulse --project projects/<ваш-проект>
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
 ```
 
-## Сборка PSP-рантайма (make)
+The result is `bin/PSPulse/PSPulse` (Linux) or `bin/PSPulse/PSPulse.exe`
+(Windows, MSVC/MinGW). Run it:
 
-Нужен установленный PSPSDK (`$PSPDEV`, `psp-gcc`, `mksfoex`, `pack-pbp`,
+```bash
+bin/PSPulse/PSPulse                       # empty editor window
+bin/PSPulse/PSPulse --project projects/<your-project>
+```
+
+## Building the PSP runtime (make)
+
+Requires an installed PSPSDK (`$PSPDEV`, `psp-gcc`, `mksfoex`, `pack-pbp`,
 `psp-fixup-imports`, `psp-strip`).
 
 ```bash
@@ -78,64 +82,67 @@ export PATH=$PSPDEV/bin:$PATH
 cd PSPRuntime && make clean && make && make dist
 ```
 
-Результат: `PSPRuntime/EBOOT.PBP` и копия в `bin/PSPRuntime/EBOOT.PBP`.
+The result is `PSPRuntime/EBOOT.PBP` plus a copy in `bin/PSPRuntime/EBOOT.PBP`.
+`libpsplua.a` is built from the vendored Lua sources by the Makefile, so a clean
+checkout works without any prebuilt artifacts.
 
-## 3D-модели (glTF 2.0)
+## 3D models (glTF 2.0)
 
-Поддерживаются `.gltf` (JSON, буферы в `data:` URI или рядом лежащие) и `.glb`
-(бинарный контейнер). Draco/meshopt-сжатие не поддерживается — экспортируйте
-без него.
+Both `.gltf` (JSON, buffers as `data:` URIs or adjacent files) and `.glb`
+(binary container) are supported. Draco/meshopt compression is not supported —
+export without it.
 
-* в Inspector у объекта есть секция **Mesh**: путь к модели, выпадающий список
-  всех `.gltf/.glb` из `assets/`, и живая диагностика (вершины/треугольники/ошибки);
-* модель перекрывает primitive; при ошибке объект просто не рисуется, а причина
-  пишется в Console (редактор) или в отладочный оверлей (PSP);
-* при сборке EBOOT все модели из `assets/**` встраиваются в ELF — игра остаётся
-  одним файлом;
-* в сцене путь хранится как `"mesh_path": "assets/models/robot.glb"`.
+* the Inspector has a **Mesh** section per object: model path, a dropdown of
+  every `.gltf/.glb` under `assets/`, and live diagnostics
+  (vertices/triangles/errors);
+* a model overrides the primitive; on error the object is simply not drawn and
+  the reason goes to the Console (editor) or the debug overlay (PSP);
+* when packaging an EBOOT every model under `assets/**` is embedded into the
+  ELF — the game stays a single file;
+* in a scene the path is stored as `"mesh_path": "assets/models/robot.glb"`.
 
-Внутренний загрузчик (`Shared/Mesh/GltfLoader.*`) общий для редактора и PSP:
-на PC он использует nlohmann/json, на PSP — компактный `TinyJsonShim` поверх
-собственного JSON-парсера рантайма (экономит ~600 КБ ELF).
+The loader (`Shared/Mesh/GltfLoader.*`) is shared by the editor and the PSP: on
+PC it uses nlohmann/json, on PSP a compact `TinyJsonShim` over the runtime's own
+JSON parser (saves ~600 KB of ELF).
 
-## Сборка игры из редактора
+## Packaging a game from the editor
 
-`Tools → Build Settings` (TITLE, TITLE_ID, APP_VER, ICON0/PIC1/SND0) →
-кнопка **Build EBOOT.PBP**. Пайплайн (`Editor/Source/BuildPipeline.cpp`):
+`Tools → Build Settings` (TITLE, TITLE_ID, APP_VER, ICON0/PIC1/SND0) → the
+**Build EBOOT.PBP** button. The pipeline (`Editor/Source/BuildPipeline.cpp`):
 
-1. создаёт `<project>/build/pkg/` (`assets/`, `scenes/`, `scripts/`),
-2. проверяет/масштабирует ICON0.PNG (144×80) и PIC1.PNG (480×272),
-   генерирует заглушки, если файлов нет,
-3. пишет `generated_assets.cpp` — сцена + все `scripts/*.lua` вкомпилируются
-   в бинарь (EBOOT работает без внешних файлов),
-4. `psp-g++ -c` по каждому модулю рантайма → `runtime.elf`,
-5. `psp-fixup-imports runtime.elf` (обязательный шаг PSPSDK; без него EBOOT
-   падает на старте с Bad Execution Address),
+1. creates `<project>/build/pkg/` (`assets/`, `scenes/`, `scripts/`),
+2. validates/downscales ICON0.PNG (144×80) and PIC1.PNG (480×272), generating
+   placeholders when the files are missing,
+3. writes `generated_assets.cpp` — the scene and every `scripts/*.lua` are
+   compiled into the binary (the EBOOT runs without external files),
+4. `psp-g++ -c` per runtime module → `runtime.elf`,
+5. `psp-fixup-imports runtime.elf` (a mandatory PSPSDK step; without it the
+   EBOOT crashes on startup with "Bad Execution Address"),
 6. `mksfoex -s BOOTABLE=1 -s TITLEID=... -d APP_VER=...`,
 7. `psp-strip` + `pack-pbp EBOOT.PBP PARAM.SFO ICON0 NULL NULL PIC1 SND0 <elf> NULL`.
 
-Относительные пути (`build/pkg`) резолвятся от корня проекта, а не от CWD.
+Relative paths (`build/pkg`) resolve against the project root, not the CWD.
 
-## Сборка под Windows
+## Building on Windows
 
-### Готовые бинарники (GitHub Actions)
+### Prebuilt binaries (GitHub Actions)
 
-`.github/workflows/windows.yml` собирает редактор двумя тулчейнами на нативном
-`windows-latest` и публикует артефакты:
+`.github/workflows/windows.yml` builds the editor with two toolchains on a
+native `windows-latest` runner and publishes the artifacts:
 
-| Job | Тулчейн | Артефакт | Размер |
-|-----|---------|----------|--------|
-| `build-windows` | MSVC (VS2022/VS2026, x64) | `PSPulse-windows-msvc` | ~2.2 МБ |
-| `build-mingw` | MinGW-w64 | `PSPulse-windows-mingw` | ~5.9 МБ |
+| Job | Toolchain | Artifact | Size |
+|-----|-----------|----------|------|
+| `build-windows` | MSVC (VS2022/VS2026, x64) | `PSPulse-windows-msvc` | ~2.2 MB |
+| `build-mingw` | MinGW-w64 | `PSPulse-windows-mingw` | ~5.9 MB |
 
-Оба бинарника самодостаточны: CRT слинкован статически
-(`CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded` для MSVC,
-`-static -static-libgcc -static-libstdc++` для MinGW), поэтому зависимости —
-только `KERNEL32/USER32/GDI32/SHELL32` и не нужен ни VC++ Redistributable,
-ни `libstdc++-6.dll`. Генератор VS определяется через `vswhere`
-(17 → 2022, 18 → 2026), потому что `windows-latest` переехал на VS 2026.
+Both binaries are self-contained: the CRT is linked statically
+(`CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded` for MSVC,
+`-static -static-libgcc -static-libstdc++` for MinGW), so the only dependencies
+are `KERNEL32/USER32/GDI32/SHELL32` — neither the VC++ Redistributable nor
+`libstdc++-6.dll` is needed. The Visual Studio generator is detected through
+`vswhere` (17 → 2022, 18 → 2026), because `windows-latest` has moved to VS 2026.
 
-### Сборка вручную
+### Building manually
 
 ```powershell
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
@@ -143,90 +150,91 @@ cmake --build build --config Release -j
 # bin/PSPulse/PSPulse.exe
 ```
 
-### Headless-сборка игры (CI/скрипты)
+### Headless game build (CI/scripts)
 
 ```bash
-./bin/PSPulse/PSPulse --project projects/<ваш-проект> --build
-# projects/MyPSPGame/build/pkg/EBOOT.PBP
+./bin/PSPulse/PSPulse --project projects/<your-project> --build
+# projects/<your-project>/build/pkg/EBOOT.PBP
 ```
 
-Редактор сам находит `PSPRuntime/` рядом с бинарником, при отсутствии
-`libpsplua.a` компилирует Lua 5.4 из `third_party/lua` — готовый архив для
-чистого клона не нужен.
+The editor locates `PSPRuntime/` next to its own binary, and when `libpsplua.a`
+is missing it compiles Lua 5.4 from `third_party/lua` — a clean checkout needs
+no prebuilt archive.
 
-### Ограничение: PSPSDK под Windows
+### Limitation: PSPSDK on Windows
 
-Prebuilt-тулчейн pspdev выпускается только под Linux (`pspdev-debian-latest.tar.gz`).
-Под Windows он запускается через **WSL2** (проще всего) или MSYS2. Редактор
-это учитывает: путь к `psp-gcc` можно указать вручную, а кнопка «Install
-PSPSDK...» под Windows предложит WSL2.
+The prebuilt pspdev toolchain is published for Linux only
+(`pspdev-debian-latest.tar.gz`). On Windows it runs through **WSL2** (simplest)
+or MSYS2. The editor accounts for this: the `psp-gcc` path can be set manually,
+and "Install PSPSDK..." on Windows points at WSL2.
 
-## Релизы
+## Releases
 
-Релиз собирается и публикуется автоматически (`.github/workflows/release.yml`):
-каждый артефакт компилируется из исходников в этом же прогоне, ничего не
-загружается вручную.
+Releases are built and published automatically
+(`.github/workflows/release.yml`): every artifact is compiled from source in the
+same run, nothing is uploaded by hand.
 
 ```bash
-git tag v1.0.1 && git push origin v1.0.1      # релиз v1.0.1
+git tag v1.0.1 && git push origin v1.0.1      # releases v1.0.1
 ```
 
-Либо вручную: **Actions → Release → Run workflow** и указать версию
-(без тега тоже работает). Публикуются только если все сборки прошли.
+Or manually: **Actions → Release → Run workflow** and type a version (this works
+without a tag too). A release is published only if every build succeeded.
 
-| Файл | Платформа |
-|------|-----------|
-| `PSPulse-<ver>-windows-x64.exe` | Windows x64, MSVC, статический CRT |
+| File | Platform |
+|------|----------|
+| `PSPulse-<ver>-windows-x64.exe` | Windows x64, MSVC, static CRT |
 | `PSPulse-<ver>-windows-x64-mingw.exe` | Windows x64, MinGW |
-| `PSPulse-<ver>-linux-x64` | Linux x64 |
-| `PSPulse-<ver>-runtime-template.EBOOT.PBP` | PSP, шаблон рантайма |
+| `PSPulse-<ver>-linux-x64` | Linux x64 (needs glibc ≥ 2.34, i.e. Ubuntu 22.04+) |
+| `PSPulse-<ver>-runtime-template.EBOOT.PBP` | PSP, runtime template |
 
-Плюс `CHECKSUMS.txt` с SHA-256 каждого файла. Версия в бинарнике берётся из
-git-тега (`PSPulse version: X.Y.Z` при конфигурации), поэтому `--version`
-в окне редактора совпадает с релизом.
+Plus `CHECKSUMS.txt` with a SHA-256 for every file. The version inside the
+binary comes from the git tag (`PSPulse version: X.Y.Z` at configure time), so
+the editor's About line always matches the release.
 
-## Устранение неполадок
+## Troubleshooting
 
-* **PSPSDK не найден** — редактор всё равно собирается; в Build Settings можно
-  указать путь к `PSPSDK bin`. При сборке выводится подсказка по установке.
-* **EBOOT зависает на чёрном экране** — проверьте, что линковка идёт через
-  `psp-g++` (C++ CRT регистрирует статические конструкторы) и что после линковки
-  выполнен `psp-fixup-imports`.
-* **Lua: `attempt to index a nil value (global 'input')`** — таблица `input`
-  должна присваиваться окружению (`env.input = ...`), а не оставаться на стеке.
+* **PSPSDK not found** — the editor still builds; the `PSPSDK bin` path can be
+  set in Build Settings. The build then prints an installation hint.
+* **EBOOT hangs on a black screen** — make sure the link runs through `psp-g++`
+  (the C++ CRT registers static constructors) and that `psp-fixup-imports` was
+  executed after linking.
+* **Lua: `attempt to index a nil value (global 'input')`** — the `input` table
+  has to be assigned into the environment (`env.input = ...`) instead of being
+  left on the stack.
 
-## Тесты
+## Tests
 
 ```bash
 cmake --build build -j && cd build && ctest --output-on-failure
 ```
 
-* `lua_vm` — Lua-мост: `input.axis/pressed`, вызовы `on_start/on_update`,
-  запись в transform. Ловит падения вида «PANIC: unprotected error in call to
-  Lua API» (некорректный индекс стека в C-функции → `abort()`).
-* `gltf_loader` — загрузка `.gltf`/`.glb`, встраивание трансформа узла,
-  bounds, аккуратная ошибка на отсутствующем файле.
-* `png_decoder` — собственный inflate (RFC 1950/1951) без zlib: декодирование
-  PNG и пересжатие ICON0 до 144x80. Без него Windows-сборка требует системный
-  zlib, а на PSP уезжали бы чёрные иконки.
+* `lua_vm` — the Lua bridge: `input.axis/pressed`, `on_start`/`on_update`
+  calls, transform writes. Catches crashes like "PANIC: unprotected error in
+  call to Lua API" (a wrong stack index in a C function → `abort()`).
+* `gltf_loader` — loads `.gltf`/`.glb`, applies node transforms, checks bounds,
+  and reports a clean error for a missing file.
+* `png_decoder` — the built-in inflate (RFC 1950/1951) with no zlib: decodes a
+  PNG and re-encodes ICON0 at 144x80. Without it the Windows build would need a
+  system zlib, and the PSP would get black icon artwork.
 
-## Проверено
+## Verified
 
-Разработка велась с реальными сборками и запусками, проверки ниже прогонялись
-на каждом этапе:
+Development was driven by real builds and real runs; every item below was
+checked on the machine, not assumed:
 
-* ПК-редактор запускается под Xvfb (программный OpenGL), все панели,
-  докинг и ImGuizmo работают.
-* `bin/PSPRuntime/EBOOT.PBP`, собранный через `make`, запускается в PPSSPP:
-  сцена с сеткой, HUD и счётчиком FPS.
-* EBOOT, собранный **из GUI редактора** (Build Settings → Build EBOOT.PBP) —
-  сцена проекта плюс работающий Lua-скрипт.
-* glTF-модели (`.gltf` и `.glb`) рисуются и в редакторе, и в PPSSPP.
-* Модальное окно автоустановки PSPSDK, скачивание и распаковка тулчейна.
-* Сборка EBOOT через **только что установленный** тулчейн (без `$PSPDEV`).
-* **Чистый клон:** EBOOT собирается без готового `libpsplua.a` (редактор
-  компилирует Lua сам) и загружается в PPSSPP с `LUA 1`; CI-EBOOT побайтно
-  совпадает с локальным.
-* **GitHub Actions:** Windows (MSVC + MinGW), Linux и PSP runtime — зелёные;
-  Windows-бинарники запускаются без VC++ Redistributable.
-* Тесты `lua_vm`, `gltf_loader`, `png_decoder` проходят (`ctest`).
+* the desktop editor starts under Xvfb (software OpenGL) with all panels,
+  docking and ImGuizmo working;
+* `bin/PSPRuntime/EBOOT.PBP` built via `make` boots in PPSSPP: grid scene, HUD
+  and FPS counter;
+* an EBOOT built **from the editor GUI** (Build Settings → Build EBOOT.PBP)
+  shows the project scene plus a working Lua script;
+* glTF models (`.gltf` and `.glb`) render both in the editor and in PPSSPP;
+* the PSPSDK auto-install dialog, download and unpack;
+* an EBOOT built with the **freshly installed** toolchain (no `$PSPDEV` set);
+* **clean clone:** an EBOOT builds without a prebuilt `libpsplua.a` (the editor
+  compiles Lua itself) and boots in PPSSPP with `LUA 1`; the CI EBOOT is
+  byte-identical to the local one;
+* **GitHub Actions:** Windows (MSVC + MinGW), Linux and the PSP runtime are all
+  green, and the Windows binaries start without the VC++ Redistributable;
+* the `lua_vm`, `gltf_loader` and `png_decoder` tests pass (`ctest`).

@@ -73,6 +73,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item bin/PSPulse/PSPulse.exe dist/PSPulse-$version-windows-x64.exe
           Copy-Item README.md dist/README.md
+          Copy-Item README.ru.md dist/README.ru.md
           Copy-Item LICENSE dist/LICENSE
           Get-ChildItem dist | Format-Table Name, Length
 

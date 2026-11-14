@@ -51,6 +51,7 @@ jobs:
           path: |
             bin/PSPulse/PSPulse.exe
             README.md
+            README.ru.md
           if-no-files-found: error
 
   # Cross-check that the MinGW toolchain also produces a runnable binary.
