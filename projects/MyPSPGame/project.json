@@ -1,6 +1,0 @@
-{
-  "name": "My PSP Game",
-  "engine": "PSPulse",
-  "version": "1.0.0",
-  "mainScene": "scenes/main.scene"
-}
