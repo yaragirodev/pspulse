@@ -208,6 +208,13 @@ if(WIN32 AND MINGW)
     # Static MinGW runtime: the .exe then runs without libstdc++-6.dll,
     # libgcc_s_seh-1.dll and libwinpthread-1.dll sitting next to it.
     target_link_options(PSPulse PRIVATE -static -static-libgcc -static-libstdc++)
+elseif(UNIX AND NOT APPLE)
+    # Same idea for the Linux build: libstdc++ is ABI-tied to the compiler that
+    # produced it, and a release binary built on a newer distro would refuse to
+    # start on older ones. Linking it statically leaves only libc/GL as shared
+    # dependencies. (libc itself still comes from the build distro, which the
+    # release job pins to Ubuntu 22.04.)
+    target_link_options(PSPulse PRIVATE -static-libgcc -static-libstdc++)
 endif()
 
 target_include_directories(PSPulse PRIVATE
