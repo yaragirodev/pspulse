@@ -141,10 +141,17 @@ jobs:
         run: |
           need=$(objdump -T bin/PSPulse/PSPulse | grep -o 'GLIBC_[0-9.]*' | sort -uV | tail -1)
           echo "binary requires $need"
-          case "$need" in
-            GLIBC_2.3[5-9]|GLIBC_2.4*) ;;
-            *) echo "::error::binary needs $need, too new for a portable release"; exit 1 ;;
+          # Numeric comparison: Ubuntu 22.04 gives 2.34, and anything up to
+          # 2.35 is portable to Debian 11 / Ubuntu 22.04 and newer.
+          minor=$(echo "$need" | sed 's/^GLIBC_2\.//')
+          case "$minor" in
+            ''|*[!0-9]*) echo "::error::cannot parse glibc requirement '$need'"; exit 1 ;;
           esac
+          echo "required minor version: $minor (limit 35)"
+          if [ "$minor" -gt 35 ]; then
+            echo "::error::binary needs $need, too new for a portable release"
+            exit 1
+          fi
 
       - name: Stage release files
         run: |
