@@ -22,7 +22,7 @@ void Check(bool ok, const char* what) {
 } // namespace
 
 int main(int argc, char** argv) {
-    const std::string dir = argc > 1 ? argv[1] : "projects/MyPSPGame/assets/models";
+    const std::string dir = argc > 1 ? argv[1] : "Tests/data/models";
     const std::string gltfPath = dir + "/triangle.gltf";
     const std::string glbPath = dir + "/triangle.glb";
 

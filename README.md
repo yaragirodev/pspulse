@@ -23,13 +23,13 @@ Shared/          Код, общий для редактора и рантайм�
 Shared/Mesh/     MeshGen (примитивы) + GltfLoader (glTF 2.0: .gltf/.glb)
 Shared/Json/     TinyJsonShim — JSON-фасад для PSP-сборки glTF-загрузчика
 Editor/Source/   ... + PspsdkInstaller (автоустановка тулчейна)
-Tests/           headless-тесты: Lua-мост, glTF-загрузчик (ctest)
+Tests/           headless-тесты: Lua-мост, glTF-загрузчик, PNG (ctest)
+                 + Tests/data — фикстуры тестов
 third_party/     glm, nlohmann_json, dear imgui (docking), ImGuizmo, glad,
                  stb, lua 5.4.6
-projects/        Проекты редактора (MyPSPGame — пример)
+projects/        Ваши проекты (создаются в редакторе)
 bin/PSPulse/     PSPulse(.exe)
 bin/PSPRuntime/  EBOOT.PBP (шаблон рантайма)
-screenshots/     Скриншоты сборок в PPSSPP
 ```
 
 ## PSPSDK: автоустановка при первом запуске
@@ -64,7 +64,7 @@ cmake --build /home/user/build -j$(nproc)
 
 ```bash
 bin/PSPulse/PSPulse                       # пустое окно редактора
-bin/PSPulse/PSPulse --project projects/MyPSPGame
+bin/PSPulse/PSPulse --project projects/<ваш-проект>
 ```
 
 ## Сборка PSP-рантайма (make)
@@ -146,7 +146,7 @@ cmake --build build --config Release -j
 ### Headless-сборка игры (CI/скрипты)
 
 ```bash
-./bin/PSPulse/PSPulse --project projects/MyPSPGame --build
+./bin/PSPulse/PSPulse --project projects/<ваш-проект> --build
 # projects/MyPSPGame/build/pkg/EBOOT.PBP
 ```
 
@@ -212,21 +212,21 @@ cmake --build build -j && cd build && ctest --output-on-failure
 
 ## Проверено
 
-* `bin/PSPulse/PSPulse` запускается под Xvfb, все панели и ImGuizmo работают.
-* `bin/PSPRuntime/EBOOT.PBP` — сцена + HUD в PPSSPP (скриншот
-  `screenshots/psp_make_build_eboot.png`).
-* `projects/MyPSPGame/build/pkg/EBOOT.PBP`, собранный **из GUI редактора** —
-  сцена проекта + работающий Lua-скрипт (скриншот
-  `screenshots/psp_gui_build_eboot.png`).
-* glTF-модели (.gltf и .glb) рисуются и в редакторе, и на PSP:
-  `screenshots/editor_gltf_models.png`, `screenshots/psp_gltf_models.png`.
-* Модальное окно автоустановки PSPSDK: `screenshots/pspsdk_first_run_offer.png`,
-  процесс установки: `screenshots/pspsdk_install_progress.png`.
-* Сборка EBOOT через **только что установленный** тулчейн (без `$PSPDEV`)
-  проверена в PPSSPP — сцена с моделями рендерится.
-* **Чистый клон:** EBOOT, собранный без готового `libpsplua.a`, загружается в
-  PPSSPP — `FPS 62 OBJ 10 LUA 1` (`screenshots/psp_clean_checkout_build.png`).
-  CI-EBOOT при этом побайтно совпадает с локальным (`md5 717d457c…`).
-* **GitHub Actions:** все 4 job'а зелёные (Windows MSVC, Windows MinGW,
-  Linux, PSP runtime); артефакты `PSPulse.exe` запускаются без
-  Redistributable.
+Разработка велась с реальными сборками и запусками, проверки ниже прогонялись
+на каждом этапе:
+
+* ПК-редактор запускается под Xvfb (программный OpenGL), все панели,
+  докинг и ImGuizmo работают.
+* `bin/PSPRuntime/EBOOT.PBP`, собранный через `make`, запускается в PPSSPP:
+  сцена с сеткой, HUD и счётчиком FPS.
+* EBOOT, собранный **из GUI редактора** (Build Settings → Build EBOOT.PBP) —
+  сцена проекта плюс работающий Lua-скрипт.
+* glTF-модели (`.gltf` и `.glb`) рисуются и в редакторе, и в PPSSPP.
+* Модальное окно автоустановки PSPSDK, скачивание и распаковка тулчейна.
+* Сборка EBOOT через **только что установленный** тулчейн (без `$PSPDEV`).
+* **Чистый клон:** EBOOT собирается без готового `libpsplua.a` (редактор
+  компилирует Lua сам) и загружается в PPSSPP с `LUA 1`; CI-EBOOT побайтно
+  совпадает с локальным.
+* **GitHub Actions:** Windows (MSVC + MinGW), Linux и PSP runtime — зелёные;
+  Windows-бинарники запускаются без VC++ Redistributable.
+* Тесты `lua_vm`, `gltf_loader`, `png_decoder` проходят (`ctest`).

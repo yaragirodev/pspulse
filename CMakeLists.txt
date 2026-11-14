@@ -298,7 +298,7 @@ if(PSPEDITOR_BUILD_TESTS)
     target_link_libraries(GltfLoaderTests PRIVATE glm::glm nlohmann_json::nlohmann_json)
     target_compile_definitions(GltfLoaderTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
     add_test(NAME gltf_loader
-             COMMAND GltfLoaderTests ${CMAKE_SOURCE_DIR}/projects/MyPSPGame/assets/models)
+             COMMAND GltfLoaderTests ${CMAKE_SOURCE_DIR}/Tests/data/models)
 
     # PNG decoder used for ICON0/PIC1 (carries its own inflate implementation).
     add_executable(PngTests Tests/png_test.cpp
@@ -314,7 +314,7 @@ if(PSPEDITOR_BUILD_TESTS)
     target_link_libraries(PngTests PRIVATE glm::glm nlohmann_json::nlohmann_json)
     target_compile_definitions(PngTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
     add_test(NAME png_decoder
-             COMMAND PngTests ${CMAKE_SOURCE_DIR}/projects/MyPSPGame/assets/ICON0.PNG)
+             COMMAND PngTests ${CMAKE_SOURCE_DIR}/Tests/data/ICON0.PNG)
 endif()
 
 message(STATUS "PSPulse: binary will be written to ${CMAKE_SOURCE_DIR}/bin/PSPulse")

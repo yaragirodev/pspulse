@@ -35,7 +35,10 @@ jobs:
           export LIBGL_ALWAYS_SOFTWARE=1
           Xvfb :99 -screen 0 1600x920x24 &
           sleep 2
-          DISPLAY=:99 timeout 5 ./bin/PSPulse/PSPulse --project projects/MyPSPGame || test $? -eq 124
+          mkdir -p /tmp/pspulse-smoke/scenes
+          printf '{"name":"Smoke","objects":[],"nextId":1}\n' > /tmp/pspulse-smoke/scenes/main.scene
+          printf '{"name":"Smoke"}\n' > /tmp/pspulse-smoke/project.json
+          DISPLAY=:99 timeout 5 ./bin/PSPulse/PSPulse --project /tmp/pspulse-smoke || test $? -eq 124
           echo "editor started and survived 5 seconds"
 
       - name: Upload editor
@@ -87,15 +90,20 @@ jobs:
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j 4
 
+      # The editor ships no sample project (it is generated on demand), so the
+      # CI creates a minimal one and runs the pipeline over it.
       - name: Headless EBOOT build via the editor CLI
         run: |
-          rm -rf PSPRuntime/lib projects/MyPSPGame/build
-          ./bin/PSPulse/PSPulse --project projects/MyPSPGame --build
-          ls -l projects/MyPSPGame/build/pkg/EBOOT.PBP
+          rm -rf PSPRuntime/lib /tmp/pspulse-e2e
+          mkdir -p /tmp/pspulse-e2e/scenes
+          printf '{"name":"CI Game","objects":[],"nextId":1}\n' > /tmp/pspulse-e2e/scenes/main.scene
+          printf '{"name":"CI Game"}\n' > /tmp/pspulse-e2e/project.json
+          ./bin/PSPulse/PSPulse --project /tmp/pspulse-e2e --build
+          ls -l /tmp/pspulse-e2e/build/pkg/EBOOT.PBP
 
       - name: Upload project EBOOT
         uses: actions/upload-artifact@v4
         with:
-          name: EBOOT-MyPSPGame
-          path: projects/MyPSPGame/build/pkg/EBOOT.PBP
+          name: EBOOT-headless-sample
+          path: /tmp/pspulse-e2e/build/pkg/EBOOT.PBP
           if-no-files-found: error
